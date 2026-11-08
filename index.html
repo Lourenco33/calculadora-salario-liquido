@@ -305,6 +305,35 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .topbar h1 { font-size: clamp(1.9rem, 5vw, 2.4rem); }
 .btn.back { padding: 8px 14px 8px 9px; font-size: .9rem; }
 
+/* Janela de confirmação */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(8, 14, 11, .55); animation: fade .15s ease;
+}
+.modal-box { width: 100%; max-width: 380px; background: var(--card); color: var(--ink); border-radius: 20px; padding: 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, .3); display: grid; gap: 10px; animation: pop .18s ease; }
+.modal-ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: var(--minus); background: color-mix(in srgb, var(--minus) 14%, transparent); }
+.modal-ic svg { width: 22px; height: 22px; }
+.modal-box h2 { font-family: var(--font-display); font-size: 1.3rem; margin: 4px 0 0; }
+.modal-box p { margin: 0; color: var(--muted); }
+.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.modal-actions .btn { justify-content: center; padding: 12px; box-shadow: none; background: var(--field); font-size: .95rem; }
+.modal-actions .btn.danger { background: var(--minus); color: #fff; }
+.modal-actions .btn.danger:hover { color: #fff; filter: brightness(1.05); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+/* Aviso rápido com Desfazer */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 14px; width: max-content; max-width: calc(100% - 32px); white-space: nowrap;
+  padding: 12px 12px 12px 18px; border-radius: 14px; background: var(--ink); color: var(--card);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25); font-weight: 600; font-size: .92rem; animation: pop .18s ease;
+}
+.toast button { border: 0; border-radius: 10px; padding: 8px 12px; background: transparent; color: var(--accent-soft); font: 700 .92rem var(--font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 880px) { .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
+
 /* Barra fixa no celular com o valor líquido */
 .mbar { display: none; }
 @media (max-width: 880px) {
@@ -358,7 +387,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   }
   @page { margin: 14mm; }
   body { padding: 0; background: #fff; font-size: 12px; }
-  header, .tabs, .topbar, #homeView, .grid > .card:first-child, footer, .no-print, .rules-drawer, .mbar { display: none !important; }
+  header, .tabs, .topbar, #homeView, .grid > .card:first-child, footer, .no-print, .rules-drawer, .mbar, .modal, .toast { display: none !important; }
   .grid { display: block; }
   .card { padding: 0; border-radius: 0; }
   .result { position: static; gap: 14px; }
@@ -748,6 +777,20 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   </div>
 
   </div>
+
+  <div class="modal" id="confirmModal" hidden role="alertdialog" aria-modal="true" aria-labelledby="cmTitle" aria-describedby="cmText">
+    <div class="modal-box">
+      <div class="modal-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+      <h2 id="cmTitle">Apagar seus dados?</h2>
+      <p id="cmText">Todos os valores que você preencheu, em todas as telas, voltam para os valores de exemplo.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cmCancel">Cancelar</button>
+        <button type="button" class="btn danger" id="cmOk">Apagar dados</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden role="status"><span id="toastTxt"></span><button type="button" id="toastUndo">Desfazer</button></div>
 
   <div class="mbar" id="mbar">
     <div><small id="mbarLbl">Você recebe por mês</small><b id="mbarVal">R$ 0,00</b></div>
@@ -1742,7 +1785,8 @@ const salvos = restaurar(doLink);
 exemplo = !(doLink || (salvos && salvos.editado));
 document.querySelectorAll("details[id]").forEach((d) => d.addEventListener("toggle", salvar));
 
-$("clearBtn").addEventListener("click", () => {
+/* Limpar dados: pede confirmação antes e permite desfazer depois */
+function limparDados() {
   try { localStorage.removeItem(CHAVE); } catch (_) {}
   restaurando = true;
   $("form").reset();
@@ -1751,10 +1795,56 @@ $("clearBtn").addEventListener("click", () => {
   $("aviso").dataset.tipo = "";
   restaurando = false;
   render();
-  const nota = $("savedNote");
-  nota.textContent = "Dados apagados. Os campos voltaram aos valores de exemplo.";
-  nota.classList.add("flash");
-  setTimeout(() => { nota.textContent = "Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui."; nota.classList.remove("flash"); }, 3500);
+}
+
+let focoAntes = null;
+function abrirConfirmacao() {
+  focoAntes = document.activeElement;
+  $("confirmModal").hidden = false;
+  $("cmCancel").focus();
+}
+function fecharConfirmacao() {
+  $("confirmModal").hidden = true;
+  if (focoAntes && focoAntes.focus) focoAntes.focus();
+}
+$("clearBtn").addEventListener("click", abrirConfirmacao);
+$("cmCancel").addEventListener("click", fecharConfirmacao);
+$("confirmModal").addEventListener("click", (e) => { if (e.target === $("confirmModal")) fecharConfirmacao(); });
+document.addEventListener("keydown", (e) => {
+  if ($("confirmModal").hidden) return;
+  if (e.key === "Escape") fecharConfirmacao();
+  if (e.key === "Tab") { // mantém o foco dentro da janela
+    const b = [$("cmCancel"), $("cmOk")];
+    const i = b.indexOf(document.activeElement);
+    e.preventDefault();
+    b[(i + (e.shiftKey ? -1 : 1) + b.length) % b.length].focus();
+  }
+});
+
+let copiaAntes = null, toastTimer = null;
+function mostrarAviso(texto, comDesfazer) {
+  $("toastTxt").textContent = texto;
+  $("toastUndo").hidden = !comDesfazer;
+  $("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $("toast").hidden = true; copiaAntes = null; }, 8000);
+}
+$("cmOk").addEventListener("click", () => {
+  copiaAntes = coletar();
+  $("confirmModal").hidden = true;
+  limparDados();
+  mostrarAviso("Dados apagados.", true);
+  $("toastUndo").focus();
+});
+$("toastUndo").addEventListener("click", () => {
+  if (!copiaAntes) return;
+  const voltar = copiaAntes;
+  copiaAntes = null;
+  $("aviso").dataset.tipo = "";
+  restaurar(voltar);
+  exemplo = !voltar.editado;
+  render();
+  mostrarAviso("Seus dados voltaram.", false);
 });
 
 // Ao ligar/desligar o cálculo inverso, troca o valor do campo para não dar um salto no resultado

@@ -1,6 +1,6 @@
 // Service worker: deixa o app abrir sem internet.
 // A página é buscada na rede primeiro (para receber atualizações) e cai no cache se estiver offline.
-const CACHE = "salario-clt-v7";
+const CACHE = "salario-clt-v8";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"];
 
 self.addEventListener("install", (e) => {
