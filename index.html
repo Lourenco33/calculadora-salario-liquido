@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Salário Líquido CLT 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: abas no topo; cartão "Seus dados" à esquerda e cartão de resultado fixo à direita; detalhes recolhíveis */
+:root {
+  --bg: #edf2ee;
+  --card: #ffffff;
+  --field: #f4f7f5;
+  --ink: #13221b;
+  --muted: #5d6d65;
+  --line: #dfe6e1;
+  --accent: #0a6b45;
+  --accent-2: #12a06a;
+  --accent-soft: #e0f1e8;
+  --on-accent: #ffffff;
+  --minus: #c2563f;
+  --tax: #d99a26;
+  --other: #7d72b0;
+  --shadow: 0 1px 2px rgba(19, 34, 27, .05), 0 8px 24px rgba(19, 34, 27, .06);
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1511; --card: #15201a; --field: #1c2a22; --ink: #e6eee9; --muted: #98a9a0; --line: #263830;
+    --accent: #43c08a; --accent-2: #6fd8a8; --accent-soft: #183a2a; --on-accent: #07120c;
+    --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1511; --card: #15201a; --field: #1c2a22; --ink: #e6eee9; --muted: #98a9a0; --line: #263830;
+  --accent: #43c08a; --accent-2: #6fd8a8; --accent-soft: #183a2a; --on-accent: #07120c;
+  --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 36px 56px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 22px; }
+
+/* Cabeçalho */
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 58ch; }
+
+/* Abas */
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); max-width: 620px; }
+.tabs a { display: grid; gap: 1px; text-decoration: none; color: var(--ink); padding: 10px 14px; border-radius: 11px; transition: background .2s; }
+.tabs a b { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
+.tabs a small { font-size: .8rem; color: var(--muted); }
+.tabs a:hover { background: var(--field); }
+.tabs a[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
+.tabs a[aria-selected="true"] small { color: var(--on-accent); opacity: .8; }
+.tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 480px) { .tabs a small { display: none; } .tabs a { text-align: center; padding: 10px 6px; } }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 24px; min-width: 0; }
+.card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0 0 18px; }
+
+/* Formulário */
+form { display: grid; gap: 20px; }
+.field { display: grid; gap: 6px; }
+.field > label, .field > .label { font-weight: 600; font-size: .93rem; }
+.hint { font-size: .82rem; color: var(--muted); }
+.money { position: relative; }
+.money span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: .9rem; color: var(--muted); pointer-events: none; }
+input[type="text"], input[type="number"] {
+  width: 100%; font: 500 1rem var(--font-mono); color: var(--ink); background: var(--field);
+  border: 1.5px solid transparent; border-radius: 12px; padding: 11px 14px; font-variant-numeric: tabular-nums;
+  transition: border-color .15s, background .15s;
+}
+input[type="text"]:hover, input[type="number"]:hover { border-color: var(--line); }
+input[type="text"]:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); background: var(--card); }
+.money input { padding-left: 44px; }
+.big .money span { font-size: 1.1rem; left: 16px; }
+.big input { font: 700 1.7rem var(--font-display); padding: 14px 16px 14px 54px; letter-spacing: -.01em; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.inline { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.inline .txt { display: grid; min-width: 0; flex: 1 1 180px; }
+.inline .txt strong { font-weight: 600; font-size: .93rem; }
+.stepper { display: inline-flex; align-items: center; background: var(--field); border-radius: 12px; padding: 4px; }
+.stepper button { width: 36px; height: 36px; border: 0; border-radius: 9px; background: var(--card); color: var(--ink); font: 600 1.1rem var(--font-mono); cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.stepper button:hover { color: var(--accent); }
+.stepper input { width: 52px; text-align: center; background: transparent; border: 0; padding: 6px 0; font-weight: 600; -moz-appearance: textfield; }
+.stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.switch { position: relative; width: 46px; height: 28px; flex: none; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.switch i { position: absolute; inset: 0; border-radius: 99px; background: var(--line); transition: background .2s; }
+.switch i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.switch input:checked + i { background: var(--accent); }
+.switch input:checked + i::after { transform: translateX(18px); }
+.switch input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--field); border-radius: 12px; padding: 4px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { text-align: center; padding: 8px 4px; border-radius: 9px; cursor: pointer; font: 600 .95rem var(--font-mono); color: var(--muted); }
+.seg input:checked + label { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.seg input:focus-visible + label { outline: 2px solid var(--accent); }
+
+.sub { display: grid; gap: 14px; padding: 16px; border-radius: 14px; background: var(--field); }
+.sub input[type="text"] { background: var(--card); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
+
+details.more { border-top: 1px solid var(--line); padding-top: 14px; }
+details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::after { content: ""; width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg) translateY(-3px); transition: transform .2s; flex: none; }
+details[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
+details.more > summary .count { font-weight: 400; font-size: .85rem; color: var(--muted); margin-left: auto; }
+details.more .body { display: grid; gap: 14px; padding-top: 16px; }
+
+/* Resultado */
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 22px; }
+@media (max-width: 880px) { .result { position: static; } }
+.total { display: grid; gap: 4px; }
+.total .lbl { font-size: .95rem; color: var(--muted); font-weight: 600; }
+.total .val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 7vw, 3.6rem); line-height: 1; letter-spacing: -.03em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.total .desc { color: var(--muted); font-size: .95rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: grid; gap: 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); flex: 1 1 150px; min-width: 0; }
+.chip small { font-size: .8rem; color: var(--muted); }
+.chip b { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.split { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 22px; align-items: center; }
+@media (max-width: 440px) { .split { grid-template-columns: minmax(0, 1fr); justify-items: center; } .split .list { width: 100%; } }
+.donut { width: 136px; height: 136px; }
+.donut circle { fill: none; stroke-width: 16; transition: stroke-dasharray .4s ease, stroke-dashoffset .4s ease; }
+.donut .track { stroke: var(--line); }
+.donut text { fill: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 24px; }
+.donut text.s { fill: var(--muted); font-family: var(--font-body); font-weight: 400; font-size: 11px; }
+.list { display: grid; gap: 2px; }
+.li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 7px 0; }
+.li i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); align-self: center; }
+.li span { min-width: 0; }
+.li span em { font-style: normal; font-size: .8rem; color: var(--muted); margin-left: 6px; }
+.li b { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.li.minus b { color: var(--minus); }
+.li.gross { border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 4px; }
+.li.net { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
+.li.net span { font-weight: 700; }
+.li.net b { color: var(--accent); font-size: 1.05rem; }
+.fgts { display: flex; gap: 10px; align-items: center; font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
+.fgts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
+
+.drawers { display: grid; }
+.drawers details { border-top: 1px solid var(--line); padding: 14px 0; }
+.drawers details:last-child { padding-bottom: 0; }
+.drawers summary { font-family: var(--font-display); font-weight: 700; }
+.drawers .body { padding-top: 14px; display: grid; gap: 14px; }
+
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.slip { min-width: 480px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-weight: 400; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.code { font-family: var(--font-mono); color: var(--muted); width: 48px; }
+td.ref { font-family: var(--font-mono); color: var(--muted); font-size: .82rem; white-space: nowrap; }
+td.minus { color: var(--minus); }
+td .tag { font-family: var(--font-mono); font-size: .68rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
+tfoot td { font-weight: 600; border-bottom: 0; }
+tfoot tr.net td { background: var(--accent-soft); }
+tr.hit td { background: var(--accent-soft); font-weight: 600; }
+.bases { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 520px) { .bases { grid-template-columns: 1fr 1fr; } }
+.bases div { background: var(--field); border-radius: 10px; padding: 8px 10px; }
+.bases small { display: block; font-size: .72rem; color: var(--muted); }
+.bases b { font-family: var(--font-mono); font-weight: 600; font-size: .9rem; }
+.explain { font-size: .9rem; color: var(--muted); margin: 0; }
+.ir-reason { padding: 12px 14px; border-radius: 10px; background: var(--field); font-size: .9rem; display: grid; gap: 4px; }
+h3 { font-size: .95rem; margin: 0; }
+.rules { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: .92rem; }
+
+footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">CLT · tabelas de 2026</span>
+    <h1>Quanto cai na sua conta?</h1>
+    <p>Digite seu salário e veja na hora o valor líquido, já com INSS e Imposto de Renda descontados. Inclui a nova isenção de IR para quem ganha até R$ 5.000.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="O que você quer calcular">
+    <a href="#mensal" role="tab" data-mode="mensal" aria-selected="true"><b>Salário</b><small>do mês</small></a>
+    <a href="#decimo-terceiro" role="tab" data-mode="decimo-terceiro" aria-selected="false"><b>13º</b><small>as duas parcelas</small></a>
+    <a href="#ferias" role="tab" data-mode="ferias" aria-selected="false"><b>Férias</b><small>com o terço</small></a>
+  </nav>
+
+  <div class="grid">
+    <section class="card">
+      <h2 class="card-title">Seus dados</h2>
+      <form id="form" autocomplete="off">
+        <div class="field big">
+          <label for="bruto">Salário bruto mensal</label>
+          <div class="money"><span>R$</span><input id="bruto" type="text" inputmode="decimal" value="6.500,00"></div>
+          <span class="hint">O valor registrado na carteira, antes dos descontos.</span>
+        </div>
+
+        <div class="field" data-only="decimo-terceiro" hidden>
+          <div class="inline">
+            <div class="txt"><strong>Meses trabalhados no ano</strong><span class="hint">Conta o mês com 15 dias ou mais.</span></div>
+            <div class="stepper">
+              <button type="button" data-step="-1" data-target="meses" aria-label="Menos um mês">−</button>
+              <input id="meses" type="number" min="1" max="12" value="12" aria-label="Meses trabalhados">
+              <button type="button" data-step="1" data-target="meses" aria-label="Mais um mês">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" data-only="ferias" hidden>
+          <span class="label" id="direitoLbl">Dias de férias a que você tem direito</span>
+          <div class="seg" role="radiogroup" aria-labelledby="direitoLbl">
+            <input type="radio" name="direito" id="d30" value="30" checked><label for="d30">30</label>
+            <input type="radio" name="direito" id="d24" value="24"><label for="d24">24</label>
+            <input type="radio" name="direito" id="d18" value="18"><label for="d18">18</label>
+            <input type="radio" name="direito" id="d12" value="12"><label for="d12">12</label>
+          </div>
+          <span class="hint">Normalmente 30. Cai para 24, 18 ou 12 com mais de 5, 14 ou 23 faltas sem justificativa no ano.</span>
+        </div>
+
+        <div class="inline" data-only="ferias" hidden>
+          <div class="txt"><strong>Vender 1/3 das férias</strong><span class="hint">Você trabalha esses dias e recebe por eles sem desconto.</span></div>
+          <label class="switch"><input id="vender" type="checkbox" aria-label="Vender 1/3 das férias"><i></i></label>
+        </div>
+
+        <div class="inline">
+          <div class="txt"><strong>Dependentes</strong><span class="hint">Filhos, cônjuge e outros que reduzem o IR.</span></div>
+          <div class="stepper">
+            <button type="button" data-step="-1" data-target="dep" aria-label="Remover dependente">−</button>
+            <input id="dep" type="number" min="0" max="20" value="1" aria-label="Número de dependentes">
+            <button type="button" data-step="1" data-target="dep" aria-label="Adicionar dependente">+</button>
+          </div>
+        </div>
+
+        <div data-only="mensal" style="display:grid;gap:14px">
+          <div class="inline">
+            <div class="txt"><strong>Vale-transporte</strong><span class="hint">Desconta até 6% do salário.</span></div>
+            <label class="switch"><input id="vt" type="checkbox" checked aria-label="Usa vale-transporte"><i></i></label>
+          </div>
+          <div class="sub" id="vtCostField">
+            <div class="field">
+              <label for="vtCusto">Quanto você gasta de passagem por mês</label>
+              <div class="money"><span>R$</span><input id="vtCusto" type="text" inputmode="decimal" value="440,00"></div>
+              <span class="hint">Se for menos que 6% do salário, o desconto é só esse valor.</span>
+            </div>
+          </div>
+        </div>
+
+        <details class="more" id="more">
+          <summary>Adicionais e outros descontos <span class="count" id="moreCount"></span></summary>
+          <div class="body">
+            <div class="field">
+              <label for="extras" id="extrasLabel">Horas extras, comissões e adicionais</label>
+              <div class="money"><span>R$</span><input id="extras" type="text" inputmode="decimal" value="0,00"></div>
+              <span class="hint" id="extrasHint">Valores que entram junto com o salário no mês.</span>
+            </div>
+            <div class="field">
+              <label for="pensao">Pensão alimentícia</label>
+              <div class="money"><span>R$</span><input id="pensao" type="text" inputmode="decimal" value="0,00"></div>
+              <span class="hint">Só a pensão determinada pela Justiça, que também reduz o IR.</span>
+            </div>
+            <div class="row2" data-only="mensal">
+              <div class="field">
+                <label for="saude">Plano de saúde</label>
+                <div class="money"><span>R$</span><input id="saude" type="text" inputmode="decimal" value="0,00"></div>
+              </div>
+              <div class="field">
+                <label for="outros">Outros descontos</label>
+                <div class="money"><span>R$</span><input id="outros" type="text" inputmode="decimal" value="0,00"></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </form>
+    </section>
+
+    <section class="card result" aria-live="polite">
+      <div class="total">
+        <span class="lbl" id="heroLbl">Você recebe</span>
+        <span class="val" id="liquido">R$ 0,00</span>
+        <span class="desc" id="heroDesc"></span>
+      </div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="split">
+        <svg class="donut" viewBox="0 0 136 136" role="img" aria-labelledby="donutTxt">
+          <circle class="track" cx="68" cy="68" r="56"></circle>
+          <g transform="rotate(-90 68 68)" id="arcs"></g>
+          <text x="68" y="70" text-anchor="middle" id="donutPct">0%</text>
+          <text x="68" y="88" text-anchor="middle" class="s" id="donutTxt">fica com você</text>
+        </svg>
+        <div class="list" id="list"></div>
+      </div>
+
+      <div class="fgts" id="fgtsBox"></div>
+
+      <div class="drawers">
+        <details>
+          <summary id="slipTitle">Ver holerite</summary>
+          <div class="body">
+            <div class="table-scroll">
+              <table class="slip">
+                <thead><tr><th>Cód.</th><th>Descrição</th><th>Ref.</th><th class="num">Proventos</th><th class="num">Descontos</th></tr></thead>
+                <tbody id="rows"></tbody>
+                <tfoot>
+                  <tr><td></td><td colspan="2">Totais</td><td class="num" id="totProv"></td><td class="num minus" id="totDesc"></td></tr>
+                  <tr class="net"><td></td><td colspan="3" id="netLbl">Valor líquido</td><td class="num" id="totLiq"></td></tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="bases">
+              <div><small>Base INSS</small><b id="baseInss"></b></div>
+              <div><small>Base IRRF</small><b id="baseIr"></b></div>
+              <div><small>Base FGTS</small><b id="baseFgts"></b></div>
+              <div><small>FGTS</small><b id="fgts"></b></div>
+            </div>
+          </div>
+        </details>
+        <details>
+          <summary>Como o INSS foi calculado</summary>
+          <div class="body">
+            <p class="explain" id="inssNote"></p>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Faixa de salário</th><th class="num">Alíquota</th><th class="num">Desconto</th></tr></thead>
+                <tbody id="inssRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <details>
+          <summary>Como o Imposto de Renda foi calculado</summary>
+          <div class="body">
+            <div class="ir-reason" id="irReason"></div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Base de cálculo</th><th class="num">Alíquota</th><th class="num">Parcela a deduzir</th></tr></thead>
+                <tbody id="irRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        <details>
+          <summary id="rulesTitle">Regras que você precisa saber</summary>
+          <div class="body"><ul class="rules" id="rules"></ul></div>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Valores de 2026: INSS pela Portaria Interministerial MPS/MF nº 13/2026 e IRRF pela tabela mensal com o redutor da Lei 15.270/2025 (isenção até R$ 5.000 e redução parcial até R$ 7.350). Não considera faltas, adiantamentos nem regras da convenção coletiva da sua categoria. É uma estimativa: confira com o holerite da empresa.
+  </footer>
+</div>
+
+<script>
+/* ===== CALC START ===== */
+const INSS_FAIXAS = [
+  { ate: 1621.00, aliq: 0.075 },
+  { ate: 2902.84, aliq: 0.09 },
+  { ate: 4354.27, aliq: 0.12 },
+  { ate: 8475.55, aliq: 0.14 },
+];
+const INSS_TETO = 8475.55;
+const IR_FAIXAS = [
+  { ate: 2428.80, aliq: 0, ded: 0 },
+  { ate: 2826.65, aliq: 0.075, ded: 182.16 },
+  { ate: 3751.05, aliq: 0.15, ded: 394.16 },
+  { ate: 4664.68, aliq: 0.225, ded: 675.49 },
+  { ate: Infinity, aliq: 0.275, ded: 908.73 },
+];
+const DED_DEPENDENTE = 189.59;
+const DESCONTO_SIMPLIFICADO = 607.20;
+const R2 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
+
+function calcINSS(base) {
+  let anterior = 0, total = 0;
+  const detalhe = INSS_FAIXAS.map((f) => {
+    const parte = Math.max(0, Math.min(base, f.ate) - anterior);
+    const valor = parte * f.aliq;
+    total += valor;
+    const linha = { de: anterior, ate: f.ate, aliq: f.aliq, valor: R2(valor), ativa: parte > 0 };
+    anterior = f.ate;
+    return linha;
+  });
+  return { total: R2(total), detalhe };
+}
+
+function redutorLei15270(rendimentos, imposto) {
+  if (rendimentos <= 5000) return imposto;
+  if (rendimentos <= 7350) return Math.min(imposto, Math.max(0, R2(978.62 - 0.133145 * rendimentos)));
+  return 0;
+}
+
+function calcIR(rendimentos, inss, dependentes, pensao, permiteSimplificado) {
+  const deducoesLegais = R2(inss + dependentes * DED_DEPENDENTE + pensao);
+  const usaSimplificado = permiteSimplificado && DESCONTO_SIMPLIFICADO > deducoesLegais;
+  const deducao = usaSimplificado ? DESCONTO_SIMPLIFICADO : deducoesLegais;
+  const base = Math.max(0, R2(rendimentos - deducao));
+  const faixa = IR_FAIXAS.findIndex((f) => base <= f.ate);
+  const f = IR_FAIXAS[faixa];
+  const bruto = Math.max(0, R2(base * f.aliq - f.ded));
+  const redutor = redutorLei15270(rendimentos, bruto);
+  return { rendimentos, deducoesLegais, permiteSimplificado, usaSimplificado, deducao, base, faixa,
+    bruto, redutor, valor: Math.max(0, R2(bruto - redutor)) };
+}
+
+function calcMensal({ bruto, extras = 0, dependentes = 0, pensao = 0, vt = false, vtCusto = 0, saude = 0, outros = 0 }) {
+  const rendimentos = R2(bruto + extras);
+  const inss = calcINSS(rendimentos);
+  const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
+  const descVT = vt ? R2(Math.min(bruto * 0.06, vtCusto > 0 ? vtCusto : bruto * 0.06)) : 0;
+  const totalDesc = R2(inss.total + ir.valor + descVT + pensao + saude + outros);
+  return { rendimentos, inss, ir, descVT, pensao, saude, outros, totalDesc,
+    liquido: R2(rendimentos - totalDesc), fgts: R2(rendimentos * 0.08) };
+}
+
+function calcDecimo({ bruto, extras = 0, meses = 12, dependentes = 0, pensao = 0 }) {
+  const remuneracao = R2(bruto + extras);
+  const integral = R2(remuneracao * meses / 12);
+  const parcela1 = R2(integral / 2);
+  const inss = calcINSS(integral);
+  const ir = calcIR(integral, inss.total, dependentes, pensao, false);
+  const totalDesc2 = R2(parcela1 + inss.total + ir.valor + pensao);
+  const parcela2 = R2(integral - totalDesc2);
+  return { remuneracao, integral, meses, parcela1, parcela2, inss, ir, pensao, totalDesc2,
+    liquido: R2(parcela1 + parcela2), fgts: R2(integral * 0.08) };
+}
+
+function calcFerias({ bruto, extras = 0, direito = 30, vender = false, dependentes = 0, pensao = 0 }) {
+  const remuneracao = R2(bruto + extras);
+  const vendidos = vender ? direito / 3 : 0;
+  const gozo = direito - vendidos;
+  const diaria = remuneracao / 30;
+  const ferias = R2(diaria * gozo);
+  const terco = R2(ferias / 3);
+  const abono = R2(diaria * vendidos);
+  const tercoAbono = R2(abono / 3);
+  const tributavel = R2(ferias + terco);
+  const inss = calcINSS(tributavel);
+  const ir = calcIR(tributavel, inss.total, dependentes, pensao, true);
+  const totalProv = R2(tributavel + abono + tercoAbono);
+  const totalDesc = R2(inss.total + ir.valor + pensao);
+  return { remuneracao, direito, gozo, vendidos, ferias, terco, abono, tercoAbono, tributavel, totalProv,
+    inss, ir, pensao, totalDesc, liquido: R2(totalProv - totalDesc), fgts: R2(tributavel * 0.08) };
+}
+/* ===== CALC END ===== */
+
+const $ = (id) => document.getElementById(id);
+const brl = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const num = (v) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pct = (v, d = 1) => (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: d }) + "%";
+
+function parseBRL(str) {
+  const s = String(str).replace(/[^\d,.-]/g, "");
+  if (!s) return 0;
+  const n = s.includes(",") ? parseFloat(s.replace(/\./g, "").replace(",", ".")) : parseFloat(s.replace(/\.(?=\d{3}(\D|$))/g, ""));
+  return isFinite(n) && n > 0 ? n : 0;
+}
+const clampInt = (v, lo, hi, def) => { const n = parseInt(v, 10); return isNaN(n) ? def : Math.max(lo, Math.min(hi, n)); };
+
+const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros"];
+const MODES = ["mensal", "decimo-terceiro", "ferias"];
+let mode = "mensal";
+
+function ler() {
+  const v = {};
+  moneyIds.forEach((id) => (v[id] = parseBRL($(id).value)));
+  return {
+    ...v,
+    dependentes: clampInt($("dep").value, 0, 20, 0),
+    meses: clampInt($("meses").value, 1, 12, 12),
+    direito: Number(document.querySelector('input[name="direito"]:checked').value),
+    vender: $("vender").checked,
+    vt: $("vt").checked,
+  };
+}
+
+const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
+
+/* Desenha o resumo: valor grande, rosca e lista de descontos */
+function renderSummary({ label, liquido, desc, chips, gross, grossLabel, items, netLabel, fgts, fgtsText }) {
+  $("heroLbl").textContent = label;
+  $("liquido").textContent = brl(liquido);
+  $("heroDesc").textContent = desc;
+  $("chips").innerHTML = chips.map(([s, b]) => `<div class="chip"><small>${s}</small><b>${b}</b></div>`).join("");
+  $("chips").hidden = !chips.length;
+
+  const shown = items.filter((it) => it.value > 0);
+  $("list").innerHTML =
+    `<div class="li gross"><i style="--c:transparent"></i><span>${grossLabel}</span><b>${brl(gross)}</b></div>` +
+    shown.map((it) => `<div class="li minus"><i style="--c:${it.color}"></i><span>${it.label}${it.note ? `<em>${it.note}</em>` : ""}</span><b>− ${brl(it.value)}</b></div>`).join("") +
+    (shown.length ? "" : `<div class="li"><i style="--c:transparent"></i><span class="hint">Nenhum desconto</span><b></b></div>`) +
+    `<div class="li net"><i style="--c:${COLORS.liq}"></i><span>${netLabel}</span><b>${brl(liquido)}</b></div>`;
+
+  const C = 2 * Math.PI * 56;
+  const total = gross || 1;
+  const segs = [{ value: Math.max(0, liquido), color: COLORS.liq }, ...shown];
+  let off = 0;
+  $("arcs").innerHTML = segs.map((s) => {
+    const len = Math.max(0, (s.value / total) * C);
+    const el = `<circle cx="68" cy="68" r="56" style="stroke:${s.color}" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"></circle>`;
+    off += len;
+    return el;
+  }).join("");
+  $("donutPct").textContent = pct(gross ? Math.max(0, liquido) / gross : 0, 0);
+  $("fgtsBox").innerHTML = `<span>${fgtsText} <b>${brl(fgts)}</b> de FGTS numa conta em seu nome. Esse valor não sai do seu bolso.</span>`;
+}
+
+const row = (c, d, ref, p, ds, tag) =>
+  `<tr><td class="code">${c}</td><td>${d}${tag ? `<span class="tag">${tag}</span>` : ""}</td><td class="ref">${ref || ""}</td><td class="num">${p ? num(p) : ""}</td><td class="num minus">${ds ? num(ds) : ""}</td></tr>`;
+const irRef = (ir) => (ir.valor ? pct(IR_FAIXAS[ir.faixa].aliq) : "isento");
+const inssRef = (inss, base) => pct(base ? inss.total / base : 0, 2) + " efet.";
+const effNote = (v, base) => (base ? pct(v / base) : "");
+
+function renderSlip({ title, rows, prov, desc, netLabel, net, bases }) {
+  $("slipTitle").textContent = title;
+  $("rows").innerHTML = rows.join("");
+  $("totProv").textContent = num(prov);
+  $("totDesc").textContent = num(desc);
+  $("netLbl").textContent = netLabel;
+  $("totLiq").textContent = brl(net);
+  $("baseInss").textContent = num(Math.min(bases[0], INSS_TETO));
+  $("baseIr").textContent = num(bases[1]);
+  $("baseFgts").textContent = num(bases[2]);
+  $("fgts").textContent = num(bases[3]);
+}
+
+function renderNotes(inss, ir, inssNote, irPrefix) {
+  $("inssNote").textContent = inssNote;
+  $("inssRows").innerHTML = inss.detalhe.map((f) =>
+    `<tr class="${f.ativa ? "hit" : ""}"><td>${num(f.de)} a ${num(f.ate)}</td><td class="num">${pct(f.aliq)}</td><td class="num">${f.ativa ? num(f.valor) : "–"}</td></tr>`
+  ).join("") + `<tr><td><strong>Total</strong></td><td></td><td class="num"><strong>${num(inss.total)}</strong></td></tr>`;
+
+  let de = 0;
+  $("irRows").innerHTML = IR_FAIXAS.map((f, i) => {
+    const faixa = f.ate === Infinity ? `acima de ${num(de)}` : `${de ? num(de + 0.01) : "0,00"} a ${num(f.ate)}`;
+    de = f.ate;
+    return `<tr class="${i === ir.faixa ? "hit" : ""}"><td>${faixa}</td><td class="num">${f.aliq ? pct(f.aliq) : "isento"}</td><td class="num">${f.ded ? num(f.ded) : "–"}</td></tr>`;
+  }).join("");
+
+  const steps = [];
+  if (irPrefix) steps.push(irPrefix);
+  if (!ir.permiteSimplificado) steps.push(`1. Do valor tributável (${brl(ir.rendimentos)}) saem INSS, dependentes e pensão: ${brl(ir.deducoesLegais)}. No 13º não existe o desconto simplificado.`);
+  else if (ir.usaSimplificado) steps.push(`1. Do valor tributável (${brl(ir.rendimentos)}) sai o desconto simplificado de ${brl(DESCONTO_SIMPLIFICADO)}, que é maior que INSS + dependentes + pensão (${brl(ir.deducoesLegais)}).`);
+  else steps.push(`1. Do valor tributável (${brl(ir.rendimentos)}) saem INSS, dependentes e pensão: ${brl(ir.deducoesLegais)}. Isso é mais que o desconto simplificado de ${brl(DESCONTO_SIMPLIFICADO)}.`);
+  steps.push(`2. Sobra a base de ${brl(ir.base)}. Pela tabela abaixo, o imposto seria ${brl(ir.bruto)}.`);
+  const r = ir.rendimentos;
+  if (r <= 5000) steps.push(`3. Como o valor tributável é de até R$ 5.000, a Lei 15.270/2025 zera o imposto.`);
+  else if (r <= 7350) steps.push(`3. Entre R$ 5.000 e R$ 7.350 há um desconto no imposto: 978,62 − 0,133145 × ${num(r)} = ${brl(ir.redutor)}.`);
+  else steps.push(`3. Acima de R$ 7.350 não há desconto extra: vale o imposto da tabela.`);
+  steps.push(`<strong>Imposto descontado: ${brl(ir.valor)}</strong>`);
+  $("irReason").innerHTML = steps.map((s) => `<span>${s}</span>`).join("");
+}
+
+function renderMensal(inp) {
+  $("vtCostField").hidden = !inp.vt;
+  const r = calcMensal(inp);
+  renderSummary({
+    label: "Você recebe por mês",
+    liquido: r.liquido,
+    desc: `de ${brl(r.rendimentos)} bruto · ${pct(r.rendimentos ? r.totalDesc / r.rendimentos : 0)} em descontos`,
+    chips: [],
+    gross: r.rendimentos, grossLabel: "Salário bruto",
+    items: [
+      { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.rendimentos) },
+      { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.rendimentos) },
+      { label: "Vale-transporte", value: r.descVT, color: COLORS.out },
+      { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
+      { label: "Plano de saúde", value: r.saude, color: COLORS.out },
+      { label: "Outros descontos", value: r.outros, color: COLORS.out },
+    ],
+    netLabel: "Salário líquido",
+    fgts: r.fgts, fgtsText: "Além disso, a empresa deposita",
+  });
+  renderSlip({
+    title: "Ver holerite do mês",
+    rows: [
+      row("001", "Salário base", "30 dias", inp.bruto, 0),
+      inp.extras ? row("010", "Horas extras e adicionais", "", inp.extras, 0) : "",
+      row("901", "INSS", inssRef(r.inss, r.rendimentos), 0, r.inss.total),
+      row("902", "IRRF", irRef(r.ir), 0, r.ir.valor),
+      r.descVT ? row("910", "Vale-transporte", pct(inp.bruto ? r.descVT / inp.bruto : 0, 2), 0, r.descVT) : "",
+      r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
+      r.saude ? row("930", "Plano de saúde", "", 0, r.saude) : "",
+      r.outros ? row("990", "Outros descontos", "", 0, r.outros) : "",
+    ],
+    prov: r.rendimentos, desc: r.totalDesc, netLabel: "Valor líquido", net: r.liquido,
+    bases: [r.rendimentos, r.ir.base, r.rendimentos, r.fgts],
+  });
+  renderNotes(r.inss, r.ir,
+    `O INSS é progressivo: cada porcentagem vale só para a parte do salário dentro da sua faixa. Acima de ${brl(INSS_TETO)} não há mais desconto.`, "");
+  $("rulesTitle").textContent = "Regras do salário mensal";
+  $("rules").innerHTML = `
+    <li>O salário é pago até o 5º dia útil do mês seguinte ao trabalhado.</li>
+    <li>O FGTS (8% do bruto) é depositado pela empresa e não é descontado de você.</li>
+    <li>O vale-transporte desconta no máximo 6% do salário-base. Se as passagens custam menos, desconta só o custo delas.</li>`;
+}
+
+function renderDecimo(inp) {
+  const r = calcDecimo(inp);
+  renderSummary({
+    label: "Seu 13º líquido",
+    liquido: r.liquido,
+    desc: `${r.meses} de 12 meses · ${brl(r.integral)} bruto`,
+    chips: [["1ª parcela · até 30/11", brl(r.parcela1)], ["2ª parcela · até 20/12", brl(r.parcela2)]],
+    gross: r.integral, grossLabel: "13º bruto",
+    items: [
+      { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.integral) },
+      { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.integral) },
+      { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
+    ],
+    netLabel: "13º líquido",
+    fgts: r.fgts, fgtsText: "Sobre o 13º, a empresa deposita",
+  });
+  renderSlip({
+    title: "Ver holerite da 2ª parcela",
+    rows: [
+      row("201", "13º salário integral", `${r.meses}/12 avos`, r.integral, 0),
+      row("202", "Adiantamento da 1ª parcela", "50%", 0, r.parcela1, "já pago"),
+      row("901", "INSS sobre o 13º", inssRef(r.inss, r.integral), 0, r.inss.total),
+      row("902", "IRRF sobre o 13º", irRef(r.ir), 0, r.ir.valor),
+      r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
+    ],
+    prov: r.integral, desc: r.totalDesc2, netLabel: "Líquido da 2ª parcela", net: r.parcela2,
+    bases: [r.integral, r.ir.base, r.integral, r.fgts],
+  });
+  renderNotes(r.inss, r.ir,
+    `No 13º o INSS é calculado separado do salário de dezembro, sobre o 13º inteiro (${brl(r.integral)}), e descontado todo na 2ª parcela.`,
+    "O IR do 13º é calculado à parte, sem somar com o salário.");
+  $("rulesTitle").textContent = "Regras do 13º";
+  $("rules").innerHTML = `
+    <li>Você ganha 1/12 da remuneração por mês trabalhado no ano. Mês com 15 dias ou mais conta inteiro.</li>
+    <li>A 1ª parcela é metade do valor bruto, sem descontos, paga até 30 de novembro. Dá para pedir que ela venha junto com as férias, fazendo o pedido em janeiro.</li>
+    <li>A 2ª parcela sai até 20 de dezembro, com INSS e IR do 13º inteiro descontados.</li>
+    <li>Horas extras e adicionais entram pela média do ano. Informe a média em "Adicionais e outros descontos".</li>`;
+}
+
+function renderFerias(inp) {
+  const r = calcFerias(inp);
+  const chips = [["Dias de descanso", `${r.gozo} dias`], ["Terço constitucional", brl(r.terco)]];
+  if (r.vendidos) chips.push([`Venda de ${r.vendidos} dias`, brl(R2(r.abono + r.tercoAbono))]);
+  renderSummary({
+    label: "Suas férias líquidas",
+    liquido: r.liquido,
+    desc: `${brl(r.totalProv)} bruto · pagas até 2 dias antes de começar`,
+    chips,
+    gross: r.totalProv, grossLabel: r.vendidos ? "Férias + terço + venda" : "Férias + terço",
+    items: [
+      { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.totalProv) },
+      { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.totalProv) },
+      { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
+    ],
+    netLabel: "Férias líquidas",
+    fgts: r.fgts, fgtsText: "Sobre as férias, a empresa deposita",
+  });
+  renderSlip({
+    title: "Ver recibo de férias",
+    rows: [
+      row("101", "Férias", `${r.gozo} dias`, r.ferias, 0),
+      row("102", "1/3 constitucional de férias", "1/3", r.terco, 0),
+      r.vendidos ? row("103", "Abono pecuniário", `${r.vendidos} dias`, r.abono, 0, "isento") : "",
+      r.vendidos ? row("104", "1/3 sobre abono pecuniário", "1/3", r.tercoAbono, 0, "isento") : "",
+      row("901", "INSS", inssRef(r.inss, r.tributavel), 0, r.inss.total),
+      row("902", "IRRF", irRef(r.ir), 0, r.ir.valor),
+      r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
+    ],
+    prov: r.totalProv, desc: r.totalDesc, netLabel: "Líquido das férias", net: r.liquido,
+    bases: [r.tributavel, r.ir.base, r.tributavel, r.fgts],
+  });
+  renderNotes(r.inss, r.ir,
+    `O INSS incide sobre os dias de descanso mais o terço (${brl(r.tributavel)}). O valor da venda de dias e o terço dela não pagam INSS.`,
+    "O IR das férias é calculado separado do salário do mês, só sobre férias + terço.");
+  $("rulesTitle").textContent = "Regras das férias";
+  $("rules").innerHTML = `
+    <li>A cada 12 meses de trabalho você ganha até 30 dias de férias e recebe 1/3 a mais do salário.</li>
+    <li>Você pode vender até 1/3 dos dias. O pedido é por escrito, até 15 dias antes de completar os 12 meses.</li>
+    <li>As férias podem ser divididas em até 3 partes: uma de pelo menos 14 dias e as outras de pelo menos 5.</li>
+    <li>O dinheiro vem até 2 dias antes de começar. Como é adiantado, o salário do mês seguinte costuma vir menor.</li>`;
+}
+
+function render() {
+  const inp = ler();
+  document.querySelectorAll("[data-only]").forEach((el) => { el.hidden = !el.dataset.only.split(" ").includes(mode); });
+  document.querySelectorAll(".tabs a").forEach((a) => a.setAttribute("aria-selected", String(a.dataset.mode === mode)));
+  const media = mode !== "mensal";
+  $("extrasLabel").textContent = media ? "Média de horas extras e adicionais" : "Horas extras, comissões e adicionais";
+  $("extrasHint").textContent = media ? "Média mensal do que você recebeu de variável no período." : "Valores que entram junto com o salário no mês.";
+  const filled = ["extras", "pensao", ...(mode === "mensal" ? ["saude", "outros"] : [])].filter((id) => parseBRL($(id).value) > 0).length;
+  $("moreCount").textContent = filled ? `${filled} preenchido${filled > 1 ? "s" : ""}` : "opcional";
+  if (mode === "decimo-terceiro") renderDecimo(inp);
+  else if (mode === "ferias") renderFerias(inp);
+  else renderMensal(inp);
+}
+
+function modeFromHash() {
+  const h = location.hash.slice(1);
+  mode = MODES.includes(h) ? h : "mensal";
+  render();
+}
+
+$("form").addEventListener("input", render);
+$("form").addEventListener("change", render);
+$("form").addEventListener("submit", (e) => e.preventDefault());
+moneyIds.forEach((id) => {
+  $(id).addEventListener("blur", () => { $(id).value = num(parseBRL($(id).value)); });
+  $(id).addEventListener("focus", () => { if (parseBRL($(id).value) === 0) $(id).select(); });
+});
+document.querySelectorAll("[data-step]").forEach((b) =>
+  b.addEventListener("click", () => {
+    const el = $(b.dataset.target);
+    el.value = clampInt((parseInt(el.value, 10) || 0) + Number(b.dataset.step), Number(el.min), Number(el.max), Number(el.min));
+    render();
+  })
+);
+document.querySelectorAll(".tabs a").forEach((a) =>
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    mode = a.dataset.mode;
+    try { history.replaceState(null, "", "#" + mode); } catch (_) { location.hash = mode; }
+    render();
+  })
+);
+window.addEventListener("hashchange", modeFromHash);
+modeFromHash();
+</script>
+
+</body>
+</html>
