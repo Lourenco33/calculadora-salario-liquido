@@ -3,6 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Calcule salário líquido, 13º, férias, rescisão e o resumo do ano num contrato CLT, com as tabelas de 2026.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#0a6b45">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Salário CLT">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  #installBtn { background: var(--accent); color: var(--on-accent); }
+  #installBtn:hover { color: var(--on-accent); opacity: .9; }
+  .head-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  @media print { #installBtn { display: none !important; } }
+</style>
 </head>
 <body>
 <title>Salário Líquido CLT 2026</title>
@@ -1344,5 +1359,38 @@ window.addEventListener("hashchange", modeFromHash);
 modeFromHash();
 </script>
 
+<script>
+// Modo offline
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
+// Botão "Instalar app" (Android e computador). No iPhone a instalação é pelo menu Compartilhar.
+(() => {
+  const tema = document.getElementById("themeBtn");
+  if (!tema) return;
+  const box = document.createElement("div");
+  box.className = "head-actions";
+  tema.replaceWith(box);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn";
+  btn.id = "installBtn";
+  btn.hidden = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/></svg><span>Instalar app</span>';
+  box.append(btn, tema);
+
+  let pedido = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); pedido = e; btn.hidden = false; });
+  btn.addEventListener("click", async () => {
+    if (!pedido) return;
+    pedido.prompt();
+    await pedido.userChoice.catch(() => {});
+    pedido = null;
+    btn.hidden = true;
+  });
+  window.addEventListener("appinstalled", () => { btn.hidden = true; });
+})();
+</script>
 </body>
 </html>

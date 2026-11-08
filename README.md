@@ -11,3 +11,12 @@ Calcula, para um contrato CLT:
 Usa INSS progressivo e IRRF com a isenção até R$ 5.000 da Lei 15.270/2025. Dá para salvar o resultado em PDF e trocar entre tema claro e escuro.
 
 É um site de um único arquivo (`index.html`), sem dependências. Os valores são estimativas: confira com o holerite da empresa.
+
+## Instalar como app no celular
+
+Abra https://lourenco33.github.io/calculadora-salario-liquido/ no celular:
+
+- **Android (Chrome):** toque em "Instalar app" no topo da página, ou no menu ⋮ → "Instalar app".
+- **iPhone (Safari):** toque em Compartilhar → "Adicionar à Tela de Início".
+
+Depois de instalado, o app abre em tela cheia e funciona sem internet.
