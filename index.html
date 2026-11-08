@@ -106,7 +106,12 @@ header p { margin: 0; color: var(--muted); max-width: 58ch; }
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
 @media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 .card { background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 24px; min-width: 0; }
-.card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0 0 18px; }
+.card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.linkbtn { border: 0; background: none; padding: 6px 2px; color: var(--muted); font: 600 .86rem var(--font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.linkbtn:hover { color: var(--minus); }
+.saved-note { margin: 0 0 18px; font-size: .82rem; color: var(--muted); }
+.saved-note.flash { color: var(--accent); font-weight: 600; }
 
 /* Formulário */
 form { display: grid; gap: 20px; }
@@ -319,7 +324,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
   <div class="grid">
     <section class="card">
-      <h2 class="card-title">Seus dados</h2>
+      <div class="card-head">
+        <h2 class="card-title">Seus dados</h2>
+        <button type="button" class="linkbtn" id="clearBtn">Limpar dados</button>
+      </div>
+      <p class="saved-note" id="savedNote">Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui.</p>
       <form id="form" autocomplete="off">
         <div class="field big">
           <label for="bruto">Salário bruto mensal</label>
@@ -1271,6 +1280,7 @@ function render() {
 
   ({ "decimo-terceiro": renderDecimo, ferias: renderFerias, rescisao: renderRescisao, ano: renderAno }[mode] || renderMensal)(inp);
 
+  salvar();
   $("printTitle").textContent = `${MODE_NAMES[mode]} · estimativa CLT 2026`;
   $("printInfo").textContent = `Salário bruto ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"} · gerado em ${new Date().toLocaleDateString("pt-BR")}`;
 }
@@ -1327,10 +1337,64 @@ if ("IntersectionObserver" in window) {
 }
 
 /* Data de saída padrão: hoje */
-{
+function hojeISO() {
   const hoje = new Date();
-  $("saida").value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+  return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
 }
+$("saida").value = hojeISO();
+
+/* Dados salvos neste aparelho (localStorage) */
+const CHAVE = "calculadora-clt-dados-v1";
+let restaurando = false;
+function campos() { return [...$("form").querySelectorAll("input, select")]; }
+function salvar() {
+  if (restaurando) return;
+  const dados = { modo: mode, campos: {}, radios: {}, abertos: {} };
+  campos().forEach((el) => {
+    if (el.type === "radio") { if (el.checked) dados.radios[el.name] = el.value; }
+    else if (el.type === "checkbox") dados.campos[el.id] = el.checked;
+    else if (el.id) dados.campos[el.id] = el.value;
+  });
+  document.querySelectorAll("details[id]").forEach((d) => (dados.abertos[d.id] = d.open));
+  try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (_) {}
+}
+function restaurar() {
+  let dados = null;
+  try { dados = JSON.parse(localStorage.getItem(CHAVE) || "null"); } catch (_) {}
+  if (!dados) return null;
+  restaurando = true;
+  Object.entries(dados.radios || {}).forEach(([nome, valor]) => {
+    const el = document.querySelector(`input[name="${nome}"][value="${valor}"]`);
+    if (el) el.checked = true;
+  });
+  syncAviso();
+  Object.entries(dados.campos || {}).forEach(([id, valor]) => {
+    const el = $(id);
+    if (!el) return;
+    if (el.type === "checkbox") el.checked = !!valor;
+    else if (el.tagName === "SELECT") { if ([...el.options].some((o) => o.value === valor)) el.value = valor; }
+    else el.value = valor;
+  });
+  Object.entries(dados.abertos || {}).forEach(([id, aberto]) => { const d = $(id); if (d) d.open = aberto; });
+  restaurando = false;
+  return dados;
+}
+const salvos = restaurar();
+document.querySelectorAll("details[id]").forEach((d) => d.addEventListener("toggle", salvar));
+
+$("clearBtn").addEventListener("click", () => {
+  try { localStorage.removeItem(CHAVE); } catch (_) {}
+  restaurando = true;
+  $("form").reset();
+  $("saida").value = hojeISO();
+  $("aviso").dataset.tipo = "";
+  restaurando = false;
+  render();
+  const nota = $("savedNote");
+  nota.textContent = "Dados apagados. Os campos voltaram aos valores de exemplo.";
+  nota.classList.add("flash");
+  setTimeout(() => { nota.textContent = "Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui."; nota.classList.remove("flash"); }, 3500);
+});
 
 $("form").addEventListener("input", render);
 $("form").addEventListener("change", render);
@@ -1356,6 +1420,9 @@ document.querySelectorAll(".tabs a").forEach((a) =>
   })
 );
 window.addEventListener("hashchange", modeFromHash);
+if (!location.hash && salvos && MODES.includes(salvos.modo)) {
+  try { history.replaceState(null, "", "#" + salvos.modo); } catch (_) {}
+}
 modeFromHash();
 </script>
 
