@@ -319,56 +319,6 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .tile em.txt { font-family: var(--font-body); font-weight: 700; font-size: .86rem; letter-spacing: 0; }
 @media (max-width: 640px) { .tile { padding: 14px; } .hero-card { padding: 20px; } }
 
-/* Destaque "Seu holerite está certo?" no início */
-.check-banner {
-  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer; font: inherit;
-  padding: 16px 18px; border-radius: 18px; border: 1.5px dashed var(--accent); background: var(--card); color: var(--ink);
-  box-shadow: var(--shadow); transition: transform .15s ease;
-}
-.check-banner:hover { transform: translateY(-2px); }
-.check-banner:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-.check-banner .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; }
-.check-banner .ic svg { width: 24px; height: 24px; }
-.cb-txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
-.cb-txt b { font-family: var(--font-display); font-weight: 700; font-size: 1.08rem; }
-.cb-txt small { color: var(--muted); font-size: .88rem; line-height: 1.35; }
-.cb-go { flex: none; font-weight: 700; font-size: .9rem; padding: 9px 14px; border-radius: 10px; background: var(--accent); color: var(--on-accent); }
-.cb-go::after { content: " →"; }
-@media (max-width: 520px) { .cb-go { display: none; } .check-banner { padding: 14px; } }
-
-/* Tela Conferir holerite: valores à esquerda, resultado à direita (no celular, um embaixo do outro) */
-.cf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
-.cf-result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 18px; }
-@media (max-width: 1000px) {
-  .cf-grid { grid-template-columns: minmax(0, 1fr); }
-  .cf-result { position: static; }
-}
-.cf-fields-intro { margin: -8px 0 18px; }
-.cf-form { gap: 18px; }
-.cf-group { margin: 6px 0 -4px; font-family: var(--font-display); font-size: 1rem; padding-top: 14px; border-top: 1px solid var(--line); }
-.cf-group:first-child { border-top: 0; padding-top: 0; }
-.cf-sum { display: flex; gap: 14px; align-items: center; padding: 18px; border-radius: 16px; }
-.cf-sum .ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; font-size: 1.5rem; font-weight: 800; }
-.cf-sum b { display: block; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.2; }
-.cf-sum small { color: var(--muted); font-size: .9rem; }
-.cf-sum.ok { background: var(--accent-soft); }
-.cf-sum.ok .ic { background: var(--accent); color: var(--on-accent); }
-.cf-sum.alerta { background: var(--warn-soft); }
-.cf-sum.alerta .ic { background: var(--minus); color: #fff; }
-.cf-sum.vazio { background: var(--field); }
-.cf-sum.vazio .ic { background: var(--line); color: var(--muted); }
-.cf-items { display: grid; gap: 10px; }
-.cf-item { display: grid; gap: 6px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); }
-.cf-item.bad { border-left-color: var(--minus); }
-.cf-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.cf-item-head b { font-weight: 700; }
-.cf-tag { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
-.cf-item.bad .cf-tag { background: var(--warn-soft); color: var(--minus); }
-.cf-vals { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .88rem; color: var(--muted); }
-.cf-vals strong { color: var(--ink); font-variant-numeric: tabular-nums; }
-.cf-item p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
-.cf-note { margin: 0; font-size: .8rem; color: var(--muted); }
-
 /* Calculadora */
 .calc { display: grid; gap: 22px; }
 .topbar { display: grid; justify-items: start; gap: 18px; padding-top: 4px; }
@@ -495,12 +445,6 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
       <span class="hc-cta" id="homeCta">Ver detalhes</span>
     </span>
     <span class="hc-side" id="homeSide"></span>
-  </button>
-
-  <button type="button" class="check-banner" data-go="conferir">
-    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 14 2 2 4-4"/></svg></span>
-    <span class="cb-txt"><b>Seu holerite está certo?</b><small>Digite os valores do seu holerite e confira INSS, Imposto de Renda e vale-transporte.</small></span>
-    <span class="cb-go">Conferir</span>
   </button>
 
   <h2 class="section-title">O que você quer calcular?</h2>
@@ -858,61 +802,6 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
   </div>
 
-  <div id="conferView" class="calc" hidden>
-    <div class="topbar">
-      <button type="button" class="btn back" id="backBtn2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        Início
-      </button>
-      <div class="tb-title"><span class="eyebrow">CLT · tabelas de 2026</span><h1>Conferir holerite</h1></div>
-    </div>
-
-    <div class="cf-grid">
-      <section class="card cf-fields">
-        <div class="card-head">
-          <h2 class="card-title">Valores do holerite</h2>
-          <button type="button" class="linkbtn" id="cfClear">Limpar</button>
-        </div>
-        <p class="hint cf-fields-intro">Pegue seu holerite e digite os valores que aparecem nele. Os totais e o líquido costumam ficar no fim da folha.</p>
-        <form id="cfForm" class="cf-form" autocomplete="off">
-          <h3 class="cf-group">Proventos</h3>
-          <div class="row2">
-            <div class="field"><label for="cfBase">Salário base</label><div class="money"><span>R$</span><input id="cfBase" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-            <div class="field"><label for="cfExtras">Extras e adicionais</label><div class="money"><span>R$</span><input id="cfExtras" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-          </div>
-          <div class="field"><label for="cfProv">Total de proventos (bruto)</label><div class="money"><span>R$</span><input id="cfProv" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-
-          <h3 class="cf-group">Descontos</h3>
-          <div class="row2">
-            <div class="field"><label for="cfInss">INSS</label><div class="money"><span>R$</span><input id="cfInss" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-            <div class="field"><label for="cfIrrf">Imposto de Renda</label><div class="money"><span>R$</span><input id="cfIrrf" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label for="cfVt">Vale-transporte</label><div class="money"><span>R$</span><input id="cfVt" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-            <div class="field"><label for="cfDesc">Total de descontos</label><div class="money"><span>R$</span><input id="cfDesc" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-          </div>
-
-          <h3 class="cf-group">Resultado</h3>
-          <div class="field"><label for="cfLiq">Líquido a receber</label><div class="money"><span>R$</span><input id="cfLiq" type="text" inputmode="decimal" placeholder="0,00"></div></div>
-          <div class="inline">
-            <div class="txt"><strong>Dependentes no IR</strong><span class="hint">Os que você informou para a empresa.</span></div>
-            <div class="stepper">
-              <button type="button" data-step="-1" data-target="cfDep" aria-label="Remover dependente">−</button>
-              <input id="cfDep" type="number" min="0" max="20" value="0" aria-label="Dependentes no IR">
-              <button type="button" data-step="1" data-target="cfDep" aria-label="Adicionar dependente">+</button>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <section class="card cf-result" aria-live="polite">
-        <div id="cfSummary"></div>
-        <div class="cf-items" id="cfItems"></div>
-        <p class="cf-note">A conferência usa as tabelas de INSS e IR de 2026 sobre o total de proventos. Diferenças podem ter explicação: pensão alimentícia, faltas, valores de meses anteriores ou itens que não pagam INSS. Na dúvida, pergunte ao RH com este resultado em mãos.</p>
-      </section>
-    </div>
-  </div>
-
   <div class="modal" id="confirmModal" hidden role="alertdialog" aria-modal="true" aria-labelledby="cmTitle" aria-describedby="cmText">
     <div class="modal-box">
       <div class="modal-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
@@ -1224,26 +1113,6 @@ function calcAno(args) {
   return { m, d, f, bruto, inss, ir, outros, liquido, fgts, beneficios,
     mediaMensal: R2(liquido / 12), comFgts: R2((liquido + fgts + beneficios) / 12) };
 }
-// Compara o holerite com o cálculo pelas tabelas de 2026
-function conferirHolerite({ base = 0, extras = 0, prov = 0, inss = 0, irrf = 0, vt = 0, desc = 0, liq = 0, dependentes = 0 }) {
-  const bruto = prov > 0 ? prov : R2(base + extras);
-  const itens = [];
-  if (bruto <= 0) return { bruto, itens, divergentes: 0 };
-  const inssEsperado = calcINSS(bruto).total;
-  itens.push({ chave: "inss", nome: "INSS", informado: inss, esperado: inssEsperado, ok: Math.abs(inss - inssEsperado) <= 1 });
-  const ir = calcIR(bruto, inss > 0 ? inss : inssEsperado, dependentes, 0, true);
-  itens.push({ chave: "irrf", nome: "Imposto de Renda", informado: irrf, esperado: ir.valor, ok: Math.abs(irrf - ir.valor) <= 1 });
-  if (vt > 0) {
-    const limite = R2((base > 0 ? base : bruto) * VT_MAX_PCT / 100);
-    itens.push({ chave: "vt", nome: "Vale-transporte", informado: vt, esperado: limite, limite: true, ok: vt <= limite + 0.5 });
-  }
-  if (liq > 0) {
-    const totalDesc = desc > 0 ? desc : R2(inss + irrf + vt);
-    const esperado = R2(bruto - totalDesc);
-    itens.push({ chave: "conta", nome: "Conta do líquido", informado: liq, esperado, ok: Math.abs(liq - esperado) <= 0.05 });
-  }
-  return { bruto, itens, divergentes: itens.filter((i) => !i.ok).length };
-}
 /* ===== CALC END ===== */
 
 const $ = (id) => document.getElementById(id);
@@ -1262,8 +1131,8 @@ const parseNum = (v) => { const n = parseFloat(String(v).replace(",", ".")); ret
 const clampInt = (v, lo, hi, def) => { const n = parseInt(v, 10); return isNaN(n) ? def : Math.max(lo, Math.min(hi, n)); };
 
 const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros", "saldoFgts", "vrValor"];
-const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano", "conferir"];
-const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano", conferir: "Conferir holerite" };
+const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano"];
+const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano" };
 let mode = "mensal";
 
 function readPctDe(id, max, padrao) {
@@ -1746,16 +1615,10 @@ function render() {
   const inp = ler();
   document.querySelectorAll("[data-only]").forEach((el) => { el.hidden = !el.dataset.only.split(" ").includes(mode); });
   const naHome = mode === "inicio";
-  const naConferencia = mode === "conferir";
   $("homeView").hidden = !naHome;
-  $("calcView").hidden = naHome || naConferencia;
-  $("conferView").hidden = !naConferencia;
-  $("mbar").hidden = naHome || naConferencia;
+  $("calcView").hidden = naHome;
+  $("mbar").hidden = naHome;
   if (naHome) { renderHome(inp); salvar(); return; }
-  if (naConferencia) {
-    if (!cfDepTocado) $("cfDep").value = $("dep").value;
-    renderConferir(); salvar(); return;
-  }
   $("viewTitle").textContent = mode === "mensal" && inp.inverso ? "Quanto preciso ganhar?" : MODE_NAMES[mode];
   $("extrasIntro").textContent = mode === "mensal"
     ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
@@ -1848,67 +1711,7 @@ const voltarInicio = () => {
   else location.hash = "inicio";
 };
 $("backBtn").addEventListener("click", voltarInicio);
-$("backBtn2").addEventListener("click", voltarInicio);
 
-/* ===== Conferir holerite ===== */
-const CF_CAMPOS = { base: "cfBase", extras: "cfExtras", prov: "cfProv", inss: "cfInss", irrf: "cfIrrf", vt: "cfVt", desc: "cfDesc", liq: "cfLiq" };
-
-function lerConferencia() {
-  const v = {};
-  Object.entries(CF_CAMPOS).forEach(([k, id]) => (v[k] = parseBRL($(id).value)));
-  v.dependentes = clampInt($("cfDep").value, 0, 20, 0);
-  return v;
-}
-
-const EXPLICA = {
-  inss: (i, c) => i.ok
-    ? `Confere com a tabela de 2026 para uma remuneração de ${brl(c.bruto)}.`
-    : i.informado > i.esperado
-      ? `Veio ${brl(R2(i.informado - i.esperado))} a mais do que a tabela indica. Pode ser cobrança errada, ou a empresa incluiu na base algo que não aparece aqui, como diferenças de meses anteriores. Vale perguntar ao RH.`
-      : `Veio ${brl(R2(i.esperado - i.informado))} a menos do que a tabela indica. Pode haver faltas ou algum valor que não paga INSS. Se o total de proventos estiver certo, pergunte ao RH.`,
-  irrf: (i) => i.ok
-    ? (i.esperado === 0 ? "Isento, como deve ser. Com a nova regra de 2026, quem ganha até R$ 5.000 não paga IR." : "Confere com a tabela do IR de 2026, já com a nova redução.")
-    : i.informado > i.esperado
-      ? `Veio ${brl(R2(i.informado - i.esperado))} a mais. Confira se a empresa tem seus dependentes cadastrados e se já aplicou a nova isenção de 2026 (Lei 15.270/2025).`
-      : `Veio ${brl(R2(i.esperado - i.informado))} a menos. A empresa pode estar considerando dependentes ou pensão alimentícia que não foram informados aqui.`,
-  vt: (i) => i.ok
-    ? `Dentro do limite de 6% do salário base (até ${brl(i.esperado)}).`
-    : `Passou do limite de 6% do salário base, que é ${brl(i.esperado)}. A empresa só pode descontar até esse valor, ou o custo real das passagens se for menor.`,
-  conta: (i) => i.ok
-    ? "Proventos menos descontos bate certinho com o líquido."
-    : `Proventos menos descontos dá ${brl(i.esperado)}, mas o líquido é ${brl(i.informado)}. Confira se os totais foram digitados certo, ou se há algum desconto que não entrou aqui.`,
-};
-
-function renderConferir() {
-  const v = lerConferencia();
-  const c = conferirHolerite(v);
-  if (!c.itens.length) {
-    $("cfSummary").innerHTML = `<div class="cf-sum vazio"><span class="ic">?</span><div><b>Digite os valores do holerite</b><small>Comece pelo salário base ou pelo total de proventos e pelos descontos. O resultado aparece aqui na hora.</small></div></div>`;
-    $("cfItems").innerHTML = "";
-    return;
-  }
-  $("cfSummary").innerHTML = c.divergentes
-    ? `<div class="cf-sum alerta"><span class="ic">!</span><div><b>${c.divergentes === 1 ? "1 ponto para conferir" : `${c.divergentes} pontos para conferir`}</b><small>${c.itens.length - c.divergentes} de ${c.itens.length} itens conferem com o cálculo.</small></div></div>`
-    : `<div class="cf-sum ok"><span class="ic">✓</span><div><b>Tudo certo no seu holerite</b><small>Os ${c.itens.length} itens conferidos batem com o cálculo.</small></div></div>`;
-  $("cfItems").innerHTML = c.itens.map((i) => `
-    <div class="cf-item ${i.ok ? "" : "bad"}">
-      <div class="cf-item-head"><b>${i.nome}</b><span class="cf-tag">${i.ok ? "Confere" : "Diferente"}</span></div>
-      <div class="cf-vals"><span>No holerite: <strong>${brl(i.informado)}</strong></span><span>${i.limite ? "Limite" : "Esperado"}: <strong>${brl(i.esperado)}</strong></span></div>
-      <p>${EXPLICA[i.chave](i, c)}</p>
-    </div>`).join("");
-}
-
-$("cfForm").addEventListener("input", renderConferir);
-$("cfForm").addEventListener("submit", (e) => e.preventDefault());
-Object.values(CF_CAMPOS).forEach((id) => $(id).addEventListener("blur", () => { const v = parseBRL($(id).value); $(id).value = v ? num(v) : ""; }));
-$("cfClear").addEventListener("click", () => {
-  Object.values(CF_CAMPOS).forEach((id) => ($(id).value = ""));
-  renderConferir();
-  $("cfBase").focus();
-});
-// Dependentes da conferência começam iguais aos de "Seus dados", até a pessoa mexer neles
-let cfDepTocado = false;
-$("cfDep").addEventListener("input", () => (cfDepTocado = true));
 
 /* Tema: automático → claro → escuro */
 const THEMES = [
@@ -2135,8 +1938,7 @@ document.querySelectorAll("[data-step]").forEach((b) =>
   b.addEventListener("click", () => {
     const el = $(b.dataset.target);
     el.value = clampInt((parseInt(el.value, 10) || 0) + Number(b.dataset.step), Number(el.min), Number(el.max), Number(el.min));
-    if (b.dataset.target === "cfDep") cfDepTocado = true;
-    else exemplo = false;
+    exemplo = false;
     render();
   })
 );
