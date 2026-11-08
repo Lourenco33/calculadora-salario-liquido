@@ -214,6 +214,15 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .li.net { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
 .li.net span { font-weight: 700; }
 .li.net b { color: var(--accent); font-size: 1.05rem; }
+.li.plus { padding: 5px 0; }
+.li.plus span { color: var(--muted); }
+.li.plus b { font-weight: 500; }
+.li.gross.sum { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
+.li.gross.sum span { font-weight: 600; }
+.li.after { padding-top: 10px; }
+.li.total { margin-top: 6px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); grid-template-columns: 0 minmax(0, 1fr) auto; }
+.li.total span { font-weight: 700; }
+.li.total b { color: var(--accent); font-size: 1.1rem; }
 .fgts { font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
 .fgts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
 
@@ -279,6 +288,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .hc-lbl { font-weight: 600; opacity: .85; }
 .hc-val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 9vw, 3.8rem); line-height: 1.02; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .hc-info { opacity: .85; font-size: .95rem; }
+.hc-vr { display: block; margin-top: 4px; }
+.hc-vr b { font-weight: 800; }
 .hc-cta { margin-top: 12px; font-weight: 700; font-size: .92rem; padding: 8px 14px; border-radius: 10px; width: fit-content; background: rgba(255, 255, 255, .18); }
 .hc-cta::after { content: " →"; }
 .section-title { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 8px 0 -6px; }
@@ -1153,7 +1164,7 @@ function ler() {
 const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
 
 let resumoAtual = { label: "", valor: 0, desc: "" };
-function renderSummary({ label, liquido, headline, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml }) {
+function renderSummary({ label, liquido, headline, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml, earnings = [], afterNet = [], totalLabel = "Total no mês" }) {
   const destaque = headline ?? liquido;
   $("heroLbl").textContent = label;
   $("liquido").textContent = brl(destaque);
@@ -1167,11 +1178,21 @@ function renderSummary({ label, liquido, headline, desc, error, chips, gross, gr
   $("chips").style.setProperty("--n", chips.length === 4 ? 2 : Math.max(1, Math.min(3, chips.length)));
 
   const shown = items.filter((it) => it.value > 0);
+  const ganhos = earnings.filter((e, i) => i === 0 || e.value > 0);
+  const depois = afterNet.filter((a) => a.value > 0);
+  const linha = (cls, cor, rotulo, valor) => `<div class="li ${cls}"><i style="--c:${cor}"></i><span>${rotulo}</span><b>${valor}</b></div>`;
   $("list").innerHTML =
-    `<div class="li gross"><i style="--c:transparent"></i><span>${grossLabel}</span><b>${brl(gross)}</b></div>` +
-    shown.map((it) => `<div class="li minus"><i style="--c:${it.color}"></i><span>${it.label}${it.note ? `<em>${it.note}</em>` : ""}</span><b>− ${brl(it.value)}</b></div>`).join("") +
+    (ganhos.length > 1
+      ? ganhos.map((e, i) => linha("plus", "transparent", e.label + (e.note ? `<em>${e.note}</em>` : ""), (i ? "+ " : "") + brl(e.value))).join("") +
+        linha("gross sum", "transparent", grossLabel, brl(gross))
+      : linha("gross", "transparent", grossLabel, brl(gross))) +
+    shown.map((it) => linha("minus", it.color, it.label + (it.note ? `<em>${it.note}</em>` : ""), "− " + brl(it.value))).join("") +
     (shown.length ? "" : `<div class="li"><i style="--c:transparent"></i><span class="hint">Nenhum desconto</span><b></b></div>`) +
-    `<div class="li net"><i style="--c:${COLORS.liq}"></i><span>${netLabel}</span><b>${brl(liquido)}</b></div>`;
+    linha("net", COLORS.liq, netLabel, brl(liquido)) +
+    (depois.length
+      ? depois.map((a) => linha("plus after", "transparent", a.label, "+ " + brl(a.value))).join("") +
+        linha("total", "transparent", totalLabel, brl(R2(liquido + depois.reduce((s, a) => s + a.value, 0))))
+      : "");
 
   const C = 2 * Math.PI * 56;
   const total = gross || 1;
@@ -1260,17 +1281,28 @@ function renderMensal(inp) {
   $("vtCostField").hidden = !inp.vt;
   const r = calcMensal(inp);
   const temExtras = r.prov !== inp.bruto;
-  const chips = temExtras ? [["Salário base", brl(inp.bruto)], ["Extras e adicionais", brl(R2(r.prov - inp.bruto))]] : [];
-  if (inp.inverso) chips.unshift(["Líquido desejado", brl(inp.alvo)]);
-  if (r.beneficioVR) chips.push(["VR/VA no cartão", brl(r.beneficioVR)], ["Salário + VR/VA", brl(R2(r.liquido + r.beneficioVR))]);
+  const rm = r.rem;
+  const chips = inp.inverso ? [["Líquido desejado", brl(inp.alvo)]] : [];
+  const totalMes = R2(r.liquido + r.beneficioVR);
   renderSummary({
     label: inp.inverso ? "Salário bruto necessário" : "Você recebe por mês",
     liquido: r.liquido,
     headline: inp.inverso ? inp.bruto : undefined,
     desc: inp.inverso
       ? `para receber ${brl(r.liquido)} líquido por mês`
-      : `de ${brl(r.prov)} bruto · ${pct(r.prov ? r.totalDesc / r.prov : 0)} em descontos`,
+      : `de ${brl(r.prov)} bruto · ${pct(r.prov ? r.totalDesc / r.prov : 0)} em descontos` + (r.beneficioVR ? ` · ${brl(totalMes)} com VR/VA` : ""),
     chips,
+    earnings: [
+      { label: "Salário base", value: rm.bruto },
+      { label: rm.nomeAdicional || "Adicional", value: rm.valorAdicional },
+      { label: "Horas extras 50%", value: rm.valorHe50, note: rm.he50 ? hrs(rm.he50) : "" },
+      { label: "Horas extras 100%", value: rm.valorHe100, note: rm.he100 ? hrs(rm.he100) : "" },
+      { label: "Adicional noturno", value: rm.valorNoturno, note: rm.noturnas ? hrs(rm.noturnas) : "" },
+      { label: "DSR sobre extras", value: rm.dsr },
+      { label: "Comissões e outros", value: rm.extras },
+    ],
+    afterNet: [{ label: "VR/VA no cartão", value: r.beneficioVR }],
+    totalLabel: "Total no mês",
     gross: r.prov, grossLabel: temExtras ? "Remuneração bruta" : "Salário bruto",
     items: [
       { label: `Faltas (${r.faltas} dia${r.faltas > 1 ? "s" : ""}) e DSR`, value: r.totalFaltas, color: COLORS.out },
@@ -1603,8 +1635,13 @@ function renderHome(inp) {
   $("homeLiquido").textContent = brl(m.liquido);
   $("homeInfo").textContent = `Salário bruto de ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"}${exemplo ? " · valores de exemplo" : ""}`;
   $("homeCta").textContent = exemplo ? "Colocar o meu salário" : "Ver detalhes";
-  const lado = [["Salário bruto", m.prov], ["Descontos", m.totalDesc], ["FGTS depositado", m.fgts]];
-  if (m.beneficioVR) lado.push(["VR/VA no cartão", m.beneficioVR]);
+  if (m.beneficioVR) $("homeInfo").insertAdjacentHTML("beforeend", `<span class="hc-vr">Com VR/VA de ${brl(m.beneficioVR)}: <b>${brl(R2(m.liquido + m.beneficioVR))}</b> no mês</span>`);
+  const extrasMes = R2(m.prov - inp.bruto);
+  const lado = [["Salário base", inp.bruto]];
+  if (extrasMes > 0) lado.push(["Extras e adicionais", extrasMes]);
+  lado.push(["Descontos", m.totalDesc]);
+  if (m.beneficioVR) lado.push(["VR/VA no cartão", m.beneficioVR], ["Total com VR/VA", R2(m.liquido + m.beneficioVR)]);
+  else lado.push(["FGTS depositado", m.fgts]);
   $("homeSide").innerHTML = lado.map(([t, v]) => `<span class="hs-row"><small>${t}</small><b>${brl(v)}</b></span>`).join("");
   $("tile13").textContent = brl(calcDecimo({ ...base, meses: inp.meses }).liquido);
   $("tileFerias").textContent = brl(calcFerias({ ...base, direito: inp.direito, vender: inp.vender }).liquido);
