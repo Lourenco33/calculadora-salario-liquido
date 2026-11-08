@@ -20,12 +20,12 @@
   --muted: #5d6d65;
   --line: #dfe6e1;
   --accent: #0a6b45;
-  --accent-2: #12a06a;
   --accent-soft: #e0f1e8;
   --on-accent: #ffffff;
   --minus: #c2563f;
   --tax: #d99a26;
   --other: #7d72b0;
+  --warn-soft: #fbeedd;
   --shadow: 0 1px 2px rgba(19, 34, 27, .05), 0 8px 24px rgba(19, 34, 27, .06);
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
@@ -34,15 +34,15 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0d1511; --card: #15201a; --field: #1c2a22; --ink: #e6eee9; --muted: #98a9a0; --line: #263830;
-    --accent: #43c08a; --accent-2: #6fd8a8; --accent-soft: #183a2a; --on-accent: #07120c;
-    --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2;
+    --accent: #43c08a; --accent-soft: #183a2a; --on-accent: #07120c;
+    --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2; --warn-soft: #3a2c16;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0d1511; --card: #15201a; --field: #1c2a22; --ink: #e6eee9; --muted: #98a9a0; --line: #263830;
-  --accent: #43c08a; --accent-2: #6fd8a8; --accent-soft: #183a2a; --on-accent: #07120c;
-  --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2;
+  --accent: #43c08a; --accent-soft: #183a2a; --on-accent: #07120c;
+  --minus: #ee8c75; --tax: #e8b65a; --other: #ab9fe2; --warn-soft: #3a2c16;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -58,21 +58,29 @@ body {
 .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 22px; }
 
 /* Cabeçalho */
-header { display: grid; gap: 6px; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+header .intro { display: grid; gap: 6px; min-width: 0; }
 .eyebrow { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
 header p { margin: 0; color: var(--muted); max-width: 58ch; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; border: 0; cursor: pointer; white-space: nowrap;
+  font: 600 .9rem var(--font-body); color: var(--ink); background: var(--card); box-shadow: var(--shadow);
+  padding: 9px 14px; border-radius: 11px;
+}
+.btn:hover { color: var(--accent); }
+.btn svg { width: 16px; height: 16px; flex: none; }
 
 /* Abas */
-.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); max-width: 620px; }
-.tabs a { display: grid; gap: 1px; text-decoration: none; color: var(--ink); padding: 10px 14px; border-radius: 11px; transition: background .2s; }
+.tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 6px; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); }
+.tabs a { display: grid; gap: 1px; text-decoration: none; color: var(--ink); padding: 10px 12px; border-radius: 11px; transition: background .2s; min-width: 0; }
 .tabs a b { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
-.tabs a small { font-size: .8rem; color: var(--muted); }
+.tabs a small { font-size: .8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tabs a:hover { background: var(--field); }
 .tabs a[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
 .tabs a[aria-selected="true"] small { color: var(--on-accent); opacity: .8; }
 .tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (max-width: 480px) { .tabs a small { display: none; } .tabs a { text-align: center; padding: 10px 6px; } }
+@media (max-width: 640px) { .tabs a small { display: none; } .tabs a { text-align: center; padding: 10px 2px; } .tabs a b { font-size: .9rem; } }
 
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
 @media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
@@ -81,18 +89,19 @@ header p { margin: 0; color: var(--muted); max-width: 58ch; }
 
 /* Formulário */
 form { display: grid; gap: 20px; }
-.field { display: grid; gap: 6px; }
+.field { display: grid; gap: 6px; min-width: 0; }
 .field > label, .field > .label { font-weight: 600; font-size: .93rem; }
 .hint { font-size: .82rem; color: var(--muted); }
 .money { position: relative; }
 .money span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: .9rem; color: var(--muted); pointer-events: none; }
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="date"], select {
   width: 100%; font: 500 1rem var(--font-mono); color: var(--ink); background: var(--field);
   border: 1.5px solid transparent; border-radius: 12px; padding: 11px 14px; font-variant-numeric: tabular-nums;
-  transition: border-color .15s, background .15s;
+  transition: border-color .15s, background .15s; min-width: 0;
 }
-input[type="text"]:hover, input[type="number"]:hover { border-color: var(--line); }
-input[type="text"]:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); background: var(--card); }
+select { font-family: var(--font-body); font-weight: 600; cursor: pointer; }
+input:hover, select:hover { border-color: var(--line); }
+input:focus, select:focus { outline: none; border-color: var(--accent); background: var(--card); }
 .money input { padding-left: 44px; }
 .money.suffix span { left: auto; right: 14px; }
 .money.suffix input { padding-left: 14px; padding-right: 40px; }
@@ -117,16 +126,20 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 .switch input:checked + i::after { transform: translateX(18px); }
 .switch input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--field); border-radius: 12px; padding: 4px; }
+.seg { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 4px; background: var(--field); border-radius: 12px; padding: 4px; }
 .seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg label { text-align: center; padding: 8px 4px; border-radius: 9px; cursor: pointer; font: 600 .95rem var(--font-mono); color: var(--muted); }
+.seg label { text-align: center; padding: 8px 4px; border-radius: 9px; cursor: pointer; font: 600 .92rem var(--font-body); color: var(--muted); }
+.seg.mono label { font-family: var(--font-mono); }
 .seg input:checked + label { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
 .seg input:focus-visible + label { outline: 2px solid var(--accent); }
 
 .sub { display: grid; gap: 14px; padding: 16px; border-radius: 14px; background: var(--field); }
-.sub input[type="text"] { background: var(--card); }
+.sub input[type="text"], .sub input[type="number"], .sub select { background: var(--card); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
+.stack { display: grid; gap: 14px; }
+.calc-note { font-size: .85rem; color: var(--muted); background: var(--field); border-radius: 10px; padding: 10px 12px; }
+.calc-note b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
 
 details.more { border-top: 1px solid var(--line); padding-top: 14px; }
 details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
@@ -139,12 +152,15 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 /* Resultado */
 .result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 22px; }
 @media (max-width: 880px) { .result { position: static; } }
-.total { display: grid; gap: 4px; }
+.total-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.total { display: grid; gap: 4px; min-width: 0; }
 .total .lbl { font-size: .95rem; color: var(--muted); font-weight: 600; }
-.total .val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 7vw, 3.6rem); line-height: 1; letter-spacing: -.03em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.total .val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.4rem, 7vw, 3.5rem); line-height: 1; letter-spacing: -.03em; color: var(--accent); font-variant-numeric: tabular-nums; }
 .total .desc { color: var(--muted); font-size: .95rem; }
+.total .desc.error { color: var(--minus); font-weight: 600; }
+.result .btn { box-shadow: none; background: var(--field); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { display: grid; gap: 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); flex: 1 1 150px; min-width: 0; }
+.chip { display: grid; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); flex: 1 1 140px; min-width: 0; }
 .chip small { font-size: .8rem; color: var(--muted); }
 .chip b { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
 
@@ -166,7 +182,7 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .li.net { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
 .li.net span { font-weight: 700; }
 .li.net b { color: var(--accent); font-size: 1.05rem; }
-.fgts { display: flex; gap: 10px; align-items: center; font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
+.fgts { font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
 .fgts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
 
 .drawers { display: grid; }
@@ -195,24 +211,52 @@ tr.hit td { background: var(--accent-soft); font-weight: 600; }
 .bases b { font-family: var(--font-mono); font-weight: 600; font-size: .9rem; }
 .explain { font-size: .9rem; color: var(--muted); margin: 0; }
 .ir-reason { padding: 12px 14px; border-radius: 10px; background: var(--field); font-size: .9rem; display: grid; gap: 4px; }
-h3 { font-size: .95rem; margin: 0; }
 .rules { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: .92rem; }
 
 footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
+.print-only { display: none; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Impressão / PDF: só o resultado, com o holerite aberto, sempre em tema claro */
+@media print {
+  html:root:not(#print) {
+    --bg: #ffffff; --card: #ffffff; --field: #f3f6f4; --ink: #111; --muted: #555; --line: #d6ddd8;
+    --accent: #0a6b45; --accent-soft: #e6f3ec; --on-accent: #fff; --minus: #b0442d; --tax: #c78a12; --other: #6d62a3;
+    --shadow: none; color-scheme: light;
+  }
+  @page { margin: 14mm; }
+  body { padding: 0; background: #fff; font-size: 12px; }
+  header, .tabs, .grid > .card:first-child, footer, .no-print, .rules-drawer { display: none !important; }
+  .grid { display: block; }
+  .card { padding: 0; border-radius: 0; }
+  .result { position: static; gap: 14px; }
+  .print-only { display: block; }
+  .print-head { border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 4px; }
+  .print-head h2 { font-family: var(--font-display); margin: 0; font-size: 18px; }
+  .print-head p { margin: 2px 0 0; color: var(--muted); }
+  .drawers details { break-inside: avoid; }
+  .drawers summary::after { display: none; }
+  .slip { min-width: 0; }
+  .donut circle { transition: none; }
+}
 </style>
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">CLT · tabelas de 2026</span>
-    <h1>Quanto cai na sua conta?</h1>
-    <p>Digite seu salário e veja na hora o valor líquido, já com INSS e Imposto de Renda descontados. Inclui a nova isenção de IR para quem ganha até R$ 5.000.</p>
+    <div class="intro">
+      <span class="eyebrow">CLT · tabelas de 2026</span>
+      <h1>Quanto cai na sua conta?</h1>
+      <p>Digite seu salário e veja na hora o valor líquido, já com INSS e Imposto de Renda descontados. Inclui a nova isenção de IR para quem ganha até R$ 5.000.</p>
+    </div>
+    <button type="button" class="btn" id="themeBtn" aria-label="Mudar tema"></button>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="O que você quer calcular">
     <a href="#mensal" role="tab" data-mode="mensal" aria-selected="true"><b>Salário</b><small>do mês</small></a>
     <a href="#decimo-terceiro" role="tab" data-mode="decimo-terceiro" aria-selected="false"><b>13º</b><small>as duas parcelas</small></a>
     <a href="#ferias" role="tab" data-mode="ferias" aria-selected="false"><b>Férias</b><small>com o terço</small></a>
+    <a href="#rescisao" role="tab" data-mode="rescisao" aria-selected="false"><b>Rescisão</b><small>ao sair da empresa</small></a>
+    <a href="#ano" role="tab" data-mode="ano" aria-selected="false"><b>Ano</b><small>tudo somado</small></a>
   </nav>
 
   <div class="grid">
@@ -223,6 +267,43 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
           <label for="bruto">Salário bruto mensal</label>
           <div class="money"><span>R$</span><input id="bruto" type="text" inputmode="decimal" value="6.500,00"></div>
           <span class="hint">O valor registrado na carteira, antes dos descontos.</span>
+        </div>
+
+        <!-- Rescisão -->
+        <div class="stack" data-only="rescisao" hidden>
+          <div class="field">
+            <span class="label" id="tipoLbl">Como você está saindo</span>
+            <div class="seg" role="radiogroup" aria-labelledby="tipoLbl">
+              <input type="radio" name="tipo" id="tSem" value="sem-justa-causa" checked><label for="tSem">Demitido</label>
+              <input type="radio" name="tipo" id="tPed" value="pedido"><label for="tPed">Pedi demissão</label>
+              <input type="radio" name="tipo" id="tAco" value="acordo"><label for="tAco">Acordo</label>
+            </div>
+            <span class="hint" id="tipoHint"></span>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="admissao">Data de admissão</label>
+              <input id="admissao" type="date" value="2023-03-15">
+            </div>
+            <div class="field">
+              <label for="saida">Último dia de trabalho</label>
+              <input id="saida" type="date">
+            </div>
+          </div>
+          <div class="field">
+            <label for="aviso">Aviso prévio</label>
+            <select id="aviso"></select>
+            <span class="hint" id="avisoHint"></span>
+          </div>
+          <div class="inline">
+            <div class="txt"><strong>Tenho férias vencidas</strong><span class="hint">Um período completo de 12 meses que você ainda não tirou.</span></div>
+            <label class="switch"><input id="vencidas" type="checkbox" aria-label="Tenho férias vencidas"><i></i></label>
+          </div>
+          <div class="field">
+            <label for="saldoFgts">Saldo atual do FGTS</label>
+            <div class="money"><span>R$</span><input id="saldoFgts" type="text" inputmode="decimal" value="0,00"></div>
+            <span class="hint">Veja no app FGTS. Se deixar zerado, a calculadora estima pelo tempo de casa.</span>
+          </div>
         </div>
 
         <div class="field" data-only="decimo-terceiro" hidden>
@@ -238,7 +319,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
         <div class="field" data-only="ferias" hidden>
           <span class="label" id="direitoLbl">Dias de férias a que você tem direito</span>
-          <div class="seg" role="radiogroup" aria-labelledby="direitoLbl">
+          <div class="seg mono" role="radiogroup" aria-labelledby="direitoLbl">
             <input type="radio" name="direito" id="d30" value="30" checked><label for="d30">30</label>
             <input type="radio" name="direito" id="d24" value="24"><label for="d24">24</label>
             <input type="radio" name="direito" id="d18" value="18"><label for="d18">18</label>
@@ -261,7 +342,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
           </div>
         </div>
 
-        <div data-only="mensal" style="display:grid;gap:14px">
+        <div class="stack" data-only="mensal ano">
           <div class="inline">
             <div class="txt"><strong>Vale-transporte</strong><span class="hint">Desconta uma parte do salário, até 6%.</span></div>
             <label class="switch"><input id="vt" type="checkbox" checked aria-label="Usa vale-transporte"><i></i></label>
@@ -275,25 +356,77 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
             <div class="field">
               <label for="vtCusto">Quanto você gasta de passagem por mês</label>
               <div class="money"><span>R$</span><input id="vtCusto" type="text" inputmode="decimal" value="440,00"></div>
-              <span class="hint" id="vtCustoHint">Se for menos que a porcentagem do salário, o desconto é só esse valor.</span>
+              <span class="hint">Se for menos que a porcentagem do salário, o desconto é só esse valor.</span>
             </div>
           </div>
         </div>
 
-        <details class="more" id="more">
-          <summary>Adicionais e outros descontos <span class="count" id="moreCount"></span></summary>
+        <details class="more" id="moreExtras">
+          <summary>Horas extras e adicionais <span class="count" id="extrasCount"></span></summary>
           <div class="body">
-            <div class="field">
-              <label for="extras" id="extrasLabel">Horas extras, comissões e adicionais</label>
-              <div class="money"><span>R$</span><input id="extras" type="text" inputmode="decimal" value="0,00"></div>
-              <span class="hint" id="extrasHint">Valores que entram junto com o salário no mês.</span>
+            <p class="hint" id="extrasIntro" style="margin:0"></p>
+            <div class="row2">
+              <div class="field">
+                <label for="he50">Horas extras a 50%</label>
+                <input id="he50" type="number" min="0" step="0.5" value="0" inputmode="decimal">
+                <span class="hint">Dias úteis</span>
+              </div>
+              <div class="field">
+                <label for="he100">Horas extras a 100%</label>
+                <input id="he100" type="number" min="0" step="0.5" value="0" inputmode="decimal">
+                <span class="hint">Domingos e feriados</span>
+              </div>
             </div>
+            <div class="row2">
+              <div class="field">
+                <label for="noturnas">Horas noturnas</label>
+                <input id="noturnas" type="number" min="0" step="0.5" value="0" inputmode="decimal">
+                <span class="hint">Entre 22h e 5h. Adicional de 20%.</span>
+              </div>
+              <div class="field">
+                <label for="jornada">Jornada mensal</label>
+                <input id="jornada" type="number" min="1" step="1" value="220" inputmode="numeric">
+                <span class="hint">220 h para 44 h por semana.</span>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="diasUteis">Dias úteis no mês</label>
+                <input id="diasUteis" type="number" min="1" max="31" value="25" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label for="diasDsr">Domingos e feriados</label>
+                <input id="diasDsr" type="number" min="0" max="15" value="5" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label for="adicional">Insalubridade ou periculosidade</label>
+              <select id="adicional">
+                <option value="nenhum">Não recebo</option>
+                <option value="ins10">Insalubridade grau mínimo · 10% do salário mínimo</option>
+                <option value="ins20">Insalubridade grau médio · 20% do salário mínimo</option>
+                <option value="ins40">Insalubridade grau máximo · 40% do salário mínimo</option>
+                <option value="per30">Periculosidade · 30% do salário</option>
+              </select>
+              <span class="hint">Os dois não se acumulam: quem tem direito aos dois escolhe o maior.</span>
+            </div>
+            <div class="field">
+              <label for="extras">Comissões e outros adicionais</label>
+              <div class="money"><span>R$</span><input id="extras" type="text" inputmode="decimal" value="0,00"></div>
+            </div>
+            <div class="calc-note" id="horaNote"></div>
+          </div>
+        </details>
+
+        <details class="more" id="moreDesc">
+          <summary>Outros descontos <span class="count" id="descCount"></span></summary>
+          <div class="body">
             <div class="field">
               <label for="pensao">Pensão alimentícia</label>
               <div class="money"><span>R$</span><input id="pensao" type="text" inputmode="decimal" value="0,00"></div>
               <span class="hint">Só a pensão determinada pela Justiça, que também reduz o IR.</span>
             </div>
-            <div class="row2" data-only="mensal">
+            <div class="row2" data-only="mensal ano">
               <div class="field">
                 <label for="saude">Plano de saúde</label>
                 <div class="money"><span>R$</span><input id="saude" type="text" inputmode="decimal" value="0,00"></div>
@@ -309,10 +442,20 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
     </section>
 
     <section class="card result" aria-live="polite">
-      <div class="total">
-        <span class="lbl" id="heroLbl">Você recebe</span>
-        <span class="val" id="liquido">R$ 0,00</span>
-        <span class="desc" id="heroDesc"></span>
+      <div class="print-only print-head">
+        <h2 id="printTitle">Salário Líquido CLT 2026</h2>
+        <p id="printInfo"></p>
+      </div>
+      <div class="total-row">
+        <div class="total">
+          <span class="lbl" id="heroLbl">Você recebe</span>
+          <span class="val" id="liquido">R$ 0,00</span>
+          <span class="desc" id="heroDesc"></span>
+        </div>
+        <button type="button" class="btn no-print" id="printBtn" title="Abre a janela de impressão. Escolha 'Salvar como PDF' para gerar o arquivo.">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Salvar PDF
+        </button>
       </div>
 
       <div class="chips" id="chips"></div>
@@ -330,7 +473,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
       <div class="fgts" id="fgtsBox"></div>
 
       <div class="drawers">
-        <details>
+        <details id="slipDrawer">
           <summary id="slipTitle">Ver holerite</summary>
           <div class="body">
             <div class="table-scroll">
@@ -343,7 +486,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
                 </tfoot>
               </table>
             </div>
-            <div class="bases">
+            <div class="bases" id="bases">
               <div><small>Base INSS</small><b id="baseInss"></b></div>
               <div><small>Base IRRF</small><b id="baseIr"></b></div>
               <div><small>Base FGTS</small><b id="baseFgts"></b></div>
@@ -375,7 +518,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
             </div>
           </div>
         </details>
-        <details>
+        <details class="rules-drawer">
           <summary id="rulesTitle">Regras que você precisa saber</summary>
           <div class="body"><ul class="rules" id="rules"></ul></div>
         </details>
@@ -384,12 +527,13 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   </div>
 
   <footer>
-    Valores de 2026: INSS pela Portaria Interministerial MPS/MF nº 13/2026 e IRRF pela tabela mensal com o redutor da Lei 15.270/2025 (isenção até R$ 5.000 e redução parcial até R$ 7.350). Não considera faltas, adiantamentos nem regras da convenção coletiva da sua categoria. É uma estimativa: confira com o holerite da empresa.
+    Valores de 2026: salário mínimo de R$ 1.621,00, INSS pela Portaria Interministerial MPS/MF nº 13/2026 e IRRF pela tabela mensal com o redutor da Lei 15.270/2025 (isenção até R$ 5.000 e redução parcial até R$ 7.350). Não considera faltas, adiantamentos nem regras da convenção coletiva da sua categoria. É uma estimativa: confira com o holerite da empresa.
   </footer>
 </div>
 
 <script>
 /* ===== CALC START ===== */
+const SALARIO_MINIMO = 1621.00;
 const INSS_FAIXAS = [
   { ate: 1621.00, aliq: 0.075 },
   { ate: 2902.84, aliq: 0.09 },
@@ -406,6 +550,7 @@ const IR_FAIXAS = [
 ];
 const DED_DEPENDENTE = 189.59;
 const DESCONTO_SIMPLIFICADO = 607.20;
+const VT_MAX_PCT = 6;
 const R2 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
 
 function calcINSS(base) {
@@ -440,20 +585,40 @@ function calcIR(rendimentos, inss, dependentes, pensao, permiteSimplificado) {
     bruto, redutor, valor: Math.max(0, R2(bruto - redutor)) };
 }
 
-const VT_MAX_PCT = 6;
-function calcMensal({ bruto, extras = 0, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0 }) {
-  const rendimentos = R2(bruto + extras);
+// Remuneração do mês: salário + insalubridade/periculosidade + horas extras + adicional noturno + DSR + outros.
+function calcRemuneracao({ bruto, adicional = "nenhum", he50 = 0, he100 = 0, noturnas = 0, jornada = 220, diasUteis = 25, diasDsr = 5, extras = 0 }) {
+  let valorAdicional = 0, nomeAdicional = "";
+  if (adicional.startsWith("ins")) {
+    const p = Number(adicional.slice(3)) / 100;
+    valorAdicional = R2(SALARIO_MINIMO * p);
+    nomeAdicional = `Insalubridade ${adicional.slice(3)}%`;
+  } else if (adicional === "per30") {
+    valorAdicional = R2(bruto * 0.30);
+    nomeAdicional = "Periculosidade 30%";
+  }
+  const valorHora = (bruto + valorAdicional) / Math.max(1, jornada);
+  const valorHe50 = R2(valorHora * 1.5 * he50);
+  const valorHe100 = R2(valorHora * 2 * he100);
+  const valorNoturno = R2(valorHora * 0.2 * noturnas);
+  const variaveis = valorHe50 + valorHe100 + valorNoturno;
+  const dsr = diasUteis > 0 ? R2((variaveis / diasUteis) * diasDsr) : 0;
+  const total = R2(bruto + valorAdicional + variaveis + dsr + extras);
+  return { bruto, valorAdicional, nomeAdicional, valorHora: R2(valorHora), he50, he100, noturnas,
+    valorHe50, valorHe100, valorNoturno, dsr, extras, total };
+}
+
+function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0 }) {
+  const rendimentos = rem.total;
   const inss = calcINSS(rendimentos);
   const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
-  const tetoVT = bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
+  const tetoVT = rem.bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
   const descVT = vt ? R2(vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) : 0;
   const totalDesc = R2(inss.total + ir.valor + descVT + pensao + saude + outros);
-  return { rendimentos, inss, ir, descVT, pensao, saude, outros, totalDesc,
+  return { rem, rendimentos, inss, ir, descVT, pensao, saude, outros, totalDesc,
     liquido: R2(rendimentos - totalDesc), fgts: R2(rendimentos * 0.08) };
 }
 
-function calcDecimo({ bruto, extras = 0, meses = 12, dependentes = 0, pensao = 0 }) {
-  const remuneracao = R2(bruto + extras);
+function calcDecimo({ remuneracao, meses = 12, dependentes = 0, pensao = 0 }) {
   const integral = R2(remuneracao * meses / 12);
   const parcela1 = R2(integral / 2);
   const inss = calcINSS(integral);
@@ -464,8 +629,7 @@ function calcDecimo({ bruto, extras = 0, meses = 12, dependentes = 0, pensao = 0
     liquido: R2(parcela1 + parcela2), fgts: R2(integral * 0.08) };
 }
 
-function calcFerias({ bruto, extras = 0, direito = 30, vender = false, dependentes = 0, pensao = 0 }) {
-  const remuneracao = R2(bruto + extras);
+function calcFerias({ remuneracao, direito = 30, vender = false, dependentes = 0, pensao = 0 }) {
   const vendidos = vender ? direito / 3 : 0;
   const gozo = direito - vendidos;
   const diaria = remuneracao / 30;
@@ -481,12 +645,131 @@ function calcFerias({ bruto, extras = 0, direito = 30, vender = false, dependent
   return { remuneracao, direito, gozo, vendidos, ferias, terco, abono, tercoAbono, tributavel, totalProv,
     inss, ir, pensao, totalDesc, liquido: R2(totalProv - totalDesc), fgts: R2(tributavel * 0.08) };
 }
+
+/* Datas em UTC, para não sofrer com fuso horário */
+const DAY = 864e5;
+function parseData(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+  return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN;
+}
+function addMeses(t, n) {
+  const d = new Date(t);
+  const y = d.getUTCFullYear(), mo = d.getUTCMonth() + n;
+  const ultimo = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+  return Date.UTC(y, mo, Math.min(d.getUTCDate(), ultimo));
+}
+// Meses completos e dias restantes no período [inicio, fim], contando os dois dias.
+function mesesCompletos(inicio, fim) {
+  let n = 0;
+  while (addMeses(inicio, n + 1) <= fim + DAY) n++;
+  return { meses: n, dias: Math.round((fim + DAY - addMeses(inicio, n)) / DAY) };
+}
+function anosCompletos(adm, saida) {
+  const a = new Date(adm), s = new Date(saida);
+  let anos = s.getUTCFullYear() - a.getUTCFullYear();
+  if (s.getUTCMonth() < a.getUTCMonth() || (s.getUTCMonth() === a.getUTCMonth() && s.getUTCDate() < a.getUTCDate())) anos--;
+  return Math.max(0, anos);
+}
+
+// Rescisão: verbas, descontos e FGTS para demissão sem justa causa, pedido de demissão e acordo (art. 484-A).
+function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, vencidas = false, saldoFgts = 0, dependentes = 0, pensao = 0 }) {
+  const adm = parseData(admissao), sai = parseData(saida);
+  if (isNaN(adm) || isNaN(sai)) return { erro: "Preencha as datas de admissão e de saída." };
+  if (sai < adm) return { erro: "O último dia de trabalho precisa ser depois da admissão." };
+
+  const anos = anosCompletos(adm, sai);
+  const tempo = mesesCompletos(adm, sai);
+  const diasAvisoLei = Math.min(90, 30 + 3 * anos);
+
+  const inicioMes = Date.UTC(new Date(sai).getUTCFullYear(), new Date(sai).getUTCMonth(), 1);
+  const diasSaldo = Math.min(30, Math.round((sai - Math.max(adm, inicioMes)) / DAY) + 1);
+  const saldoSalario = R2(remuneracao / 30 * diasSaldo);
+
+  let diasAviso = 0, avisoIndenizado = 0, avisoDescontado = 0, diasProjecao = 0;
+  if (tipo === "pedido") {
+    diasAviso = 30;
+    if (aviso === "nao-cumprido") avisoDescontado = R2(salarioBase);
+  } else if (aviso === "indenizado") {
+    diasAviso = tipo === "acordo" ? Math.floor(diasAvisoLei / 2) : diasAvisoLei;
+    avisoIndenizado = R2(remuneracao / 30 * diasAviso);
+    diasProjecao = diasAviso;
+  } else {
+    diasAviso = diasAvisoLei;
+  }
+  const fimProjetado = sai + diasProjecao * DAY;
+
+  // 13º proporcional: meses do ano da saída (com projeção do aviso) em que trabalhou 15 dias ou mais
+  const ano = new Date(fimProjetado).getUTCFullYear();
+  let avos13 = 0;
+  for (let m = 0; m <= new Date(fimProjetado).getUTCMonth(); m++) {
+    const ini = Math.max(Date.UTC(ano, m, 1), adm);
+    const fim = Math.min(Date.UTC(ano, m + 1, 0), fimProjetado);
+    if (fim >= ini && Math.round((fim - ini) / DAY) + 1 >= 15) avos13++;
+  }
+  const decimo = R2(remuneracao / 12 * avos13);
+
+  // Férias proporcionais: desde o último aniversário da admissão
+  const a = new Date(adm);
+  let aniversario = Date.UTC(new Date(fimProjetado).getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
+  if (aniversario > fimProjetado) aniversario = addMeses(aniversario, -12);
+  if (aniversario < adm) aniversario = adm;
+  const per = mesesCompletos(aniversario, fimProjetado);
+  const avosFerias = Math.min(12, per.meses + (per.dias >= 15 ? 1 : 0));
+  const feriasProp = R2(remuneracao / 12 * avosFerias);
+  const tercoProp = R2(feriasProp / 3);
+  const feriasVenc = vencidas ? R2(remuneracao) : 0;
+  const tercoVenc = R2(feriasVenc / 3);
+
+  // Descontos: INSS e IR sobre saldo de salário; INSS e IR exclusivo sobre o 13º.
+  // Aviso indenizado e férias indenizadas (com o terço) não pagam INSS nem IR.
+  const inssSaldo = calcINSS(saldoSalario);
+  const irSaldo = calcIR(saldoSalario, inssSaldo.total, dependentes, pensao, true);
+  const inss13 = calcINSS(decimo);
+  const ir13 = calcIR(decimo, inss13.total, dependentes, 0, false);
+
+  const totalProv = R2(saldoSalario + avisoIndenizado + decimo + feriasProp + tercoProp + feriasVenc + tercoVenc);
+  const inssTotal = R2(inssSaldo.total + inss13.total);
+  const irTotal = R2(irSaldo.valor + ir13.valor);
+  const totalDesc = R2(inssTotal + irTotal + avisoDescontado + pensao);
+  const liquido = R2(totalProv - totalDesc);
+
+  // FGTS
+  const mesesContrato = (sai - adm + DAY) / DAY / 30.4375;
+  const fgtsEstimado = saldoFgts <= 0;
+  const saldoBase = fgtsEstimado ? R2(remuneracao * 0.08 * mesesContrato) : saldoFgts;
+  const depositoRescisao = R2(0.08 * (saldoSalario + avisoIndenizado + decimo));
+  const baseFgts = R2(saldoBase + depositoRescisao);
+  const pctMulta = tipo === "sem-justa-causa" ? 0.4 : tipo === "acordo" ? 0.2 : 0;
+  const multa = R2(baseFgts * pctMulta);
+  const saque = tipo === "sem-justa-causa" ? R2(baseFgts + multa) : tipo === "acordo" ? R2(baseFgts * 0.8 + multa) : 0;
+
+  return { tipo, aviso, anos, tempo, diasAvisoLei, diasAviso, diasSaldo, saldoSalario, avisoIndenizado, avisoDescontado,
+    diasProjecao, avos13, decimo, avosFerias, feriasProp, tercoProp, feriasVenc, tercoVenc,
+    inssSaldo, irSaldo, inss13, ir13, inssTotal, irTotal, pensao, totalProv, totalDesc, liquido,
+    fgtsEstimado, saldoBase, depositoRescisao, baseFgts, pctMulta, multa, saque };
+}
+
+// Ano: 11 salários + 1 mês de férias com o terço + 13º.
+function calcAno(args) {
+  const m = calcMensal(args);
+  const remuneracao = args.rem.total;
+  const d = calcDecimo({ remuneracao, meses: 12, dependentes: args.dependentes, pensao: args.pensao });
+  const f = calcFerias({ remuneracao, direito: 30, vender: false, dependentes: args.dependentes, pensao: args.pensao });
+  const bruto = R2(11 * m.rendimentos + f.totalProv + d.integral);
+  const inss = R2(11 * m.inss.total + f.inss.total + d.inss.total);
+  const ir = R2(11 * m.ir.valor + f.ir.valor + d.ir.valor);
+  const liquido = R2(11 * m.liquido + f.liquido + d.liquido);
+  const outros = R2(bruto - inss - ir - liquido);
+  const fgts = R2(11 * m.fgts + f.fgts + d.fgts);
+  return { m, d, f, bruto, inss, ir, outros, liquido, fgts, mediaMensal: R2(liquido / 12), comFgts: R2((liquido + fgts) / 12) };
+}
 /* ===== CALC END ===== */
 
 const $ = (id) => document.getElementById(id);
 const brl = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const num = (v) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = (v, d = 1) => (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: d }) + "%";
+const hrs = (v) => v.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " h";
 
 function parseBRL(str) {
   const s = String(str).replace(/[^\d,.-]/g, "");
@@ -494,39 +777,49 @@ function parseBRL(str) {
   const n = s.includes(",") ? parseFloat(s.replace(/\./g, "").replace(",", ".")) : parseFloat(s.replace(/\.(?=\d{3}(\D|$))/g, ""));
   return isFinite(n) && n > 0 ? n : 0;
 }
+const parseNum = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) && n > 0 ? n : 0; };
 const clampInt = (v, lo, hi, def) => { const n = parseInt(v, 10); return isNaN(n) ? def : Math.max(lo, Math.min(hi, n)); };
 
-const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros"];
-const MODES = ["mensal", "decimo-terceiro", "ferias"];
+const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros", "saldoFgts"];
+const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano"];
+const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano" };
 let mode = "mensal";
+
+function readPct() {
+  const n = parseFloat(String($("vtPct").value).replace(",", ".").replace(/[^\d.]/g, ""));
+  return isFinite(n) ? Math.max(0, Math.min(VT_MAX_PCT, n)) : VT_MAX_PCT;
+}
+const radio = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
 
 function ler() {
   const v = {};
   moneyIds.forEach((id) => (v[id] = parseBRL($(id).value)));
+  const rem = calcRemuneracao({
+    bruto: v.bruto, adicional: $("adicional").value,
+    he50: parseNum($("he50").value), he100: parseNum($("he100").value), noturnas: parseNum($("noturnas").value),
+    jornada: parseNum($("jornada").value) || 220,
+    diasUteis: clampInt($("diasUteis").value, 1, 31, 25), diasDsr: clampInt($("diasDsr").value, 0, 15, 5),
+    extras: v.extras,
+  });
   return {
-    ...v,
+    ...v, rem,
     dependentes: clampInt($("dep").value, 0, 20, 0),
     meses: clampInt($("meses").value, 1, 12, 12),
-    direito: Number(document.querySelector('input[name="direito"]:checked').value),
+    direito: Number(radio("direito")),
     vender: $("vender").checked,
-    vt: $("vt").checked,
-    vtPct: readPct(),
+    vt: $("vt").checked, vtPct: readPct(),
+    tipo: radio("tipo"), admissao: $("admissao").value, saida: $("saida").value,
+    aviso: $("aviso").value, vencidas: $("vencidas").checked,
   };
-}
-
-function readPct() {
-  const s = String($("vtPct").value).replace(",", ".").replace(/[^\d.]/g, "");
-  const n = parseFloat(s);
-  return isFinite(n) ? Math.max(0, Math.min(VT_MAX_PCT, n)) : VT_MAX_PCT;
 }
 
 const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
 
-/* Desenha o resumo: valor grande, rosca e lista de descontos */
-function renderSummary({ label, liquido, desc, chips, gross, grossLabel, items, netLabel, fgts, fgtsText }) {
+function renderSummary({ label, liquido, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml }) {
   $("heroLbl").textContent = label;
   $("liquido").textContent = brl(liquido);
-  $("heroDesc").textContent = desc;
+  $("heroDesc").textContent = error || desc;
+  $("heroDesc").classList.toggle("error", !!error);
   $("chips").innerHTML = chips.map(([s, b]) => `<div class="chip"><small>${s}</small><b>${b}</b></div>`).join("");
   $("chips").hidden = !chips.length;
 
@@ -539,16 +832,16 @@ function renderSummary({ label, liquido, desc, chips, gross, grossLabel, items, 
 
   const C = 2 * Math.PI * 56;
   const total = gross || 1;
-  const segs = [{ value: Math.max(0, liquido), color: COLORS.liq }, ...shown];
   let off = 0;
-  $("arcs").innerHTML = segs.map((s) => {
-    const len = Math.max(0, (s.value / total) * C);
+  $("arcs").innerHTML = [{ value: Math.max(0, liquido), color: COLORS.liq }, ...shown].map((s) => {
+    const len = Math.max(0, Math.min(C, (s.value / total) * C));
     const el = `<circle cx="68" cy="68" r="56" style="stroke:${s.color}" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"></circle>`;
     off += len;
     return el;
   }).join("");
   $("donutPct").textContent = pct(gross ? Math.max(0, liquido) / gross : 0, 0);
-  $("fgtsBox").innerHTML = `<span>${fgtsText} <b>${brl(fgts)}</b> de FGTS numa conta em seu nome. Esse valor não sai do seu bolso.</span>`;
+  $("fgtsBox").innerHTML = fgtsHtml;
+  $("fgtsBox").hidden = !fgtsHtml;
 }
 
 const row = (c, d, ref, p, ds, tag) =>
@@ -557,17 +850,34 @@ const irRef = (ir) => (ir.valor ? pct(IR_FAIXAS[ir.faixa].aliq) : "isento");
 const inssRef = (inss, base) => pct(base ? inss.total / base : 0, 2) + " efet.";
 const effNote = (v, base) => (base ? pct(v / base) : "");
 
-function renderSlip({ title, rows, prov, desc, netLabel, net, bases }) {
+// Linhas de proventos da remuneração (usadas no holerite mensal)
+function remRows(rem) {
+  return [
+    row("001", "Salário base", "30 dias", rem.bruto, 0),
+    rem.valorAdicional ? row("003", rem.nomeAdicional, "", rem.valorAdicional, 0) : "",
+    rem.valorHe50 ? row("010", "Horas extras 50%", hrs(rem.he50), rem.valorHe50, 0) : "",
+    rem.valorHe100 ? row("011", "Horas extras 100%", hrs(rem.he100), rem.valorHe100, 0) : "",
+    rem.valorNoturno ? row("012", "Adicional noturno 20%", hrs(rem.noturnas), rem.valorNoturno, 0) : "",
+    rem.dsr ? row("013", "DSR sobre horas extras e noturno", "", rem.dsr, 0) : "",
+    rem.extras ? row("014", "Comissões e outros adicionais", "", rem.extras, 0) : "",
+  ];
+}
+
+function renderSlip({ title, head, rows, prov, desc, netLabel, net, bases }) {
   $("slipTitle").textContent = title;
+  document.querySelector(".slip thead tr").innerHTML = head || "<th>Cód.</th><th>Descrição</th><th>Ref.</th><th class=\"num\">Proventos</th><th class=\"num\">Descontos</th>";
   $("rows").innerHTML = rows.join("");
   $("totProv").textContent = num(prov);
   $("totDesc").textContent = num(desc);
   $("netLbl").textContent = netLabel;
   $("totLiq").textContent = brl(net);
-  $("baseInss").textContent = num(Math.min(bases[0], INSS_TETO));
-  $("baseIr").textContent = num(bases[1]);
-  $("baseFgts").textContent = num(bases[2]);
-  $("fgts").textContent = num(bases[3]);
+  $("bases").hidden = !bases;
+  if (bases) {
+    $("baseInss").textContent = num(Math.min(bases[0], INSS_TETO));
+    $("baseIr").textContent = num(bases[1]);
+    $("baseFgts").textContent = num(bases[2]);
+    $("fgts").textContent = num(bases[3]);
+  }
 }
 
 function renderNotes(inss, ir, inssNote, irPrefix) {
@@ -597,15 +907,21 @@ function renderNotes(inss, ir, inssNote, irPrefix) {
   $("irReason").innerHTML = steps.map((s) => `<span>${s}</span>`).join("");
 }
 
+function setRules(title, items) {
+  $("rulesTitle").textContent = title;
+  $("rules").innerHTML = items.map((t) => `<li>${t}</li>`).join("");
+}
+
 function renderMensal(inp) {
   $("vtCostField").hidden = !inp.vt;
   const r = calcMensal(inp);
+  const temExtras = r.rendimentos !== inp.bruto;
   renderSummary({
     label: "Você recebe por mês",
     liquido: r.liquido,
     desc: `de ${brl(r.rendimentos)} bruto · ${pct(r.rendimentos ? r.totalDesc / r.rendimentos : 0)} em descontos`,
-    chips: [],
-    gross: r.rendimentos, grossLabel: "Salário bruto",
+    chips: temExtras ? [["Salário base", brl(inp.bruto)], ["Extras e adicionais", brl(R2(r.rendimentos - inp.bruto))]] : [],
+    gross: r.rendimentos, grossLabel: temExtras ? "Remuneração bruta" : "Salário bruto",
     items: [
       { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.rendimentos) },
       { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.rendimentos) },
@@ -615,13 +931,12 @@ function renderMensal(inp) {
       { label: "Outros descontos", value: r.outros, color: COLORS.out },
     ],
     netLabel: "Salário líquido",
-    fgts: r.fgts, fgtsText: "Além disso, a empresa deposita",
+    fgtsHtml: `Além disso, a empresa deposita <b>${brl(r.fgts)}</b> de FGTS numa conta em seu nome. Esse valor não sai do seu bolso.`,
   });
   renderSlip({
     title: "Ver holerite do mês",
     rows: [
-      row("001", "Salário base", "30 dias", inp.bruto, 0),
-      inp.extras ? row("010", "Horas extras e adicionais", "", inp.extras, 0) : "",
+      ...remRows(r.rem),
       row("901", "INSS", inssRef(r.inss, r.rendimentos), 0, r.inss.total),
       row("902", "IRRF", irRef(r.ir), 0, r.ir.valor),
       r.descVT ? row("910", "Vale-transporte", pct(inp.bruto ? r.descVT / inp.bruto : 0, 2), 0, r.descVT) : "",
@@ -634,15 +949,17 @@ function renderMensal(inp) {
   });
   renderNotes(r.inss, r.ir,
     `O INSS é progressivo: cada porcentagem vale só para a parte do salário dentro da sua faixa. Acima de ${brl(INSS_TETO)} não há mais desconto.`, "");
-  $("rulesTitle").textContent = "Regras do salário mensal";
-  $("rules").innerHTML = `
-    <li>O salário é pago até o 5º dia útil do mês seguinte ao trabalhado.</li>
-    <li>O FGTS (8% do bruto) é depositado pela empresa e não é descontado de você.</li>
-    <li>O vale-transporte desconta no máximo 6% do salário-base, e a empresa pode descontar menos. Se as passagens custam menos que isso, desconta só o custo delas.</li>`;
+  setRules("Regras do salário mensal", [
+    "O salário é pago até o 5º dia útil do mês seguinte ao trabalhado.",
+    "O FGTS (8% da remuneração) é depositado pela empresa e não é descontado de você.",
+    "Hora extra vale pelo menos 50% a mais que a hora normal. Em domingos e feriados não compensados, costuma ser 100%.",
+    "Horas extras e adicional noturno feitos com frequência também aumentam o descanso semanal remunerado (DSR).",
+    "O vale-transporte desconta no máximo 6% do salário-base, e a empresa pode descontar menos. Se as passagens custam menos que isso, desconta só o custo delas.",
+  ]);
 }
 
 function renderDecimo(inp) {
-  const r = calcDecimo(inp);
+  const r = calcDecimo({ remuneracao: inp.rem.total, meses: inp.meses, dependentes: inp.dependentes, pensao: inp.pensao });
   renderSummary({
     label: "Seu 13º líquido",
     liquido: r.liquido,
@@ -655,7 +972,7 @@ function renderDecimo(inp) {
       { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
     ],
     netLabel: "13º líquido",
-    fgts: r.fgts, fgtsText: "Sobre o 13º, a empresa deposita",
+    fgtsHtml: `Sobre o 13º, a empresa deposita <b>${brl(r.fgts)}</b> de FGTS numa conta em seu nome.`,
   });
   renderSlip({
     title: "Ver holerite da 2ª parcela",
@@ -672,16 +989,16 @@ function renderDecimo(inp) {
   renderNotes(r.inss, r.ir,
     `No 13º o INSS é calculado separado do salário de dezembro, sobre o 13º inteiro (${brl(r.integral)}), e descontado todo na 2ª parcela.`,
     "O IR do 13º é calculado à parte, sem somar com o salário.");
-  $("rulesTitle").textContent = "Regras do 13º";
-  $("rules").innerHTML = `
-    <li>Você ganha 1/12 da remuneração por mês trabalhado no ano. Mês com 15 dias ou mais conta inteiro.</li>
-    <li>A 1ª parcela é metade do valor bruto, sem descontos, paga até 30 de novembro. Dá para pedir que ela venha junto com as férias, fazendo o pedido em janeiro.</li>
-    <li>A 2ª parcela sai até 20 de dezembro, com INSS e IR do 13º inteiro descontados.</li>
-    <li>Horas extras e adicionais entram pela média do ano. Informe a média em "Adicionais e outros descontos".</li>`;
+  setRules("Regras do 13º", [
+    "Você ganha 1/12 da remuneração por mês trabalhado no ano. Mês com 15 dias ou mais conta inteiro.",
+    "A 1ª parcela é metade do valor bruto, sem descontos, paga até 30 de novembro. Dá para pedir que ela venha junto com as férias, fazendo o pedido em janeiro.",
+    "A 2ª parcela sai até 20 de dezembro, com INSS e IR do 13º inteiro descontados.",
+    "Horas extras e adicionais entram pela média do ano. A calculadora usa os valores de \"Horas extras e adicionais\" como essa média.",
+  ]);
 }
 
 function renderFerias(inp) {
-  const r = calcFerias(inp);
+  const r = calcFerias({ remuneracao: inp.rem.total, direito: inp.direito, vender: inp.vender, dependentes: inp.dependentes, pensao: inp.pensao });
   const chips = [["Dias de descanso", `${r.gozo} dias`], ["Terço constitucional", brl(r.terco)]];
   if (r.vendidos) chips.push([`Venda de ${r.vendidos} dias`, brl(R2(r.abono + r.tercoAbono))]);
   renderSummary({
@@ -696,7 +1013,7 @@ function renderFerias(inp) {
       { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
     ],
     netLabel: "Férias líquidas",
-    fgts: r.fgts, fgtsText: "Sobre as férias, a empresa deposita",
+    fgtsHtml: `Sobre as férias, a empresa deposita <b>${brl(r.fgts)}</b> de FGTS numa conta em seu nome.`,
   });
   renderSlip({
     title: "Ver recibo de férias",
@@ -715,32 +1032,229 @@ function renderFerias(inp) {
   renderNotes(r.inss, r.ir,
     `O INSS incide sobre os dias de descanso mais o terço (${brl(r.tributavel)}). O valor da venda de dias e o terço dela não pagam INSS.`,
     "O IR das férias é calculado separado do salário do mês, só sobre férias + terço.");
-  $("rulesTitle").textContent = "Regras das férias";
-  $("rules").innerHTML = `
-    <li>A cada 12 meses de trabalho você ganha até 30 dias de férias e recebe 1/3 a mais do salário.</li>
-    <li>Você pode vender até 1/3 dos dias. O pedido é por escrito, até 15 dias antes de completar os 12 meses.</li>
-    <li>As férias podem ser divididas em até 3 partes: uma de pelo menos 14 dias e as outras de pelo menos 5.</li>
-    <li>O dinheiro vem até 2 dias antes de começar. Como é adiantado, o salário do mês seguinte costuma vir menor.</li>`;
+  setRules("Regras das férias", [
+    "A cada 12 meses de trabalho você ganha até 30 dias de férias e recebe 1/3 a mais do salário.",
+    "Você pode vender até 1/3 dos dias. O pedido é por escrito, até 15 dias antes de completar os 12 meses.",
+    "As férias podem ser divididas em até 3 partes: uma de pelo menos 14 dias e as outras de pelo menos 5.",
+    "O dinheiro vem até 2 dias antes de começar. Como é adiantado, o salário do mês seguinte costuma vir menor.",
+  ]);
+}
+
+const TIPO_HINT = {
+  "sem-justa-causa": "A empresa encerrou o contrato sem um motivo grave seu.",
+  pedido: "Você pediu para sair.",
+  acordo: "Você e a empresa combinaram a saída (art. 484-A da CLT).",
+};
+const AVISO_OPCOES = {
+  "sem-justa-causa": [["indenizado", "Indenizado: a empresa paga e você não trabalha"], ["trabalhado", "Trabalhado: você cumpriu o aviso"]],
+  acordo: [["indenizado", "Indenizado: a empresa paga metade do aviso"], ["trabalhado", "Trabalhado: você cumpriu o aviso"]],
+  pedido: [["trabalhado", "Cumpri os 30 dias de aviso"], ["dispensado", "A empresa me liberou do aviso"], ["nao-cumprido", "Não cumpri o aviso"]],
+};
+function syncAviso() {
+  const tipo = radio("tipo");
+  const sel = $("aviso");
+  if (sel.dataset.tipo !== tipo) {
+    const atual = sel.value;
+    sel.innerHTML = AVISO_OPCOES[tipo].map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
+    if (AVISO_OPCOES[tipo].some(([v]) => v === atual)) sel.value = atual;
+    sel.dataset.tipo = tipo;
+  }
+  $("tipoHint").textContent = TIPO_HINT[tipo];
+}
+
+function tempoTxt(t) {
+  const anos = Math.floor(t.meses / 12), meses = t.meses % 12;
+  const p = [];
+  if (anos) p.push(`${anos} ano${anos > 1 ? "s" : ""}`);
+  if (meses) p.push(`${meses} ${meses > 1 ? "meses" : "mês"}`);
+  if (!p.length) p.push(`${t.dias} dia${t.dias > 1 ? "s" : ""}`);
+  return p.join(" e ");
+}
+
+function renderRescisao(inp) {
+  const r = calcRescisao({ remuneracao: inp.rem.total, salarioBase: inp.bruto, tipo: inp.tipo, admissao: inp.admissao, saida: inp.saida,
+    aviso: inp.aviso, vencidas: inp.vencidas, saldoFgts: inp.saldoFgts, dependentes: inp.dependentes, pensao: inp.pensao });
+  const avisoTxt = { indenizado: "indenizado", trabalhado: "trabalhado", dispensado: "dispensado", "nao-cumprido": "não cumprido" }[inp.aviso];
+  if (r.erro) {
+    renderSummary({ label: "Você recebe na rescisão", liquido: 0, error: r.erro, chips: [], gross: 0, grossLabel: "Total de verbas", items: [], netLabel: "Líquido", fgtsHtml: "" });
+    renderSlip({ title: "Ver termo de rescisão", rows: [], prov: 0, desc: 0, netLabel: "Líquido", net: 0 });
+    $("avisoHint").textContent = "";
+    return;
+  }
+  $("avisoHint").textContent = inp.tipo === "pedido"
+    ? (inp.aviso === "nao-cumprido" ? "A empresa pode descontar um salário do que você tem a receber." : "No pedido de demissão o aviso é de 30 dias.")
+    : `Com ${r.anos} ano${r.anos === 1 ? "" : "s"} completo${r.anos === 1 ? "" : "s"} de casa, seu aviso é de ${r.diasAvisoLei} dias (30 + 3 por ano, até 90).`;
+
+  const chips = [["Tempo de casa", tempoTxt(r.tempo)], [`Aviso prévio ${avisoTxt}`, `${r.diasAviso} dias`]];
+  if (r.saque) chips.push(["FGTS para sacar", brl(r.saque)]);
+  renderSummary({
+    label: "Você recebe na rescisão",
+    liquido: r.liquido,
+    desc: `${brl(r.totalProv)} em verbas · pago até 10 dias após a saída`,
+    chips,
+    gross: r.totalProv, grossLabel: "Total de verbas",
+    items: [
+      { label: "INSS", value: r.inssTotal, color: COLORS.inss },
+      { label: "Imposto de Renda", value: r.irTotal, color: COLORS.ir },
+      { label: "Aviso prévio não cumprido", value: r.avisoDescontado, color: COLORS.out },
+      { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
+    ],
+    netLabel: "Líquido da rescisão",
+    fgtsHtml: r.pctMulta
+      ? `FGTS: saldo ${r.fgtsEstimado ? "estimado " : ""}de <b>${brl(r.saldoBase)}</b> + depósito da rescisão de <b>${brl(r.depositoRescisao)}</b> + multa de ${pct(r.pctMulta, 0)} de <b>${brl(r.multa)}</b>. ${inp.tipo === "acordo" ? "No acordo você saca 80% do saldo e a multa inteira" : "Você saca tudo"}: <b>${brl(r.saque)}</b>.`
+      : `FGTS: no pedido de demissão não há multa e o saldo ${r.fgtsEstimado ? "estimado " : ""}de <b>${brl(r.baseFgts)}</b> continua na conta. Você saca em casos como compra da casa própria ou aposentadoria.`,
+  });
+  renderSlip({
+    title: "Ver termo de rescisão",
+    rows: [
+      row("301", "Saldo de salário", `${r.diasSaldo} dias`, r.saldoSalario, 0),
+      r.avisoIndenizado ? row("302", "Aviso prévio indenizado", `${r.diasAviso} dias`, r.avisoIndenizado, 0, "isento") : "",
+      r.decimo ? row("303", "13º salário proporcional", `${r.avos13}/12 avos`, r.decimo, 0) : "",
+      r.feriasVenc ? row("304", "Férias vencidas", "30 dias", r.feriasVenc, 0, "isento") : "",
+      r.tercoVenc ? row("305", "1/3 sobre férias vencidas", "1/3", r.tercoVenc, 0, "isento") : "",
+      r.feriasProp ? row("306", "Férias proporcionais", `${r.avosFerias}/12 avos`, r.feriasProp, 0, "isento") : "",
+      r.tercoProp ? row("307", "1/3 sobre férias proporcionais", "1/3", r.tercoProp, 0, "isento") : "",
+      row("901", "INSS sobre saldo de salário", inssRef(r.inssSaldo, r.saldoSalario), 0, r.inssSaldo.total),
+      r.inss13.total ? row("902", "INSS sobre 13º", inssRef(r.inss13, r.decimo), 0, r.inss13.total) : "",
+      row("903", "IRRF sobre saldo de salário", irRef(r.irSaldo), 0, r.irSaldo.valor),
+      r.decimo ? row("904", "IRRF sobre 13º", irRef(r.ir13), 0, r.ir13.valor) : "",
+      r.avisoDescontado ? row("905", "Aviso prévio não cumprido", "30 dias", 0, r.avisoDescontado) : "",
+      r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
+    ],
+    prov: r.totalProv, desc: r.totalDesc, netLabel: "Líquido da rescisão", net: r.liquido,
+    bases: [r.saldoSalario, r.irSaldo.base, R2(r.saldoSalario + r.avisoIndenizado + r.decimo), r.depositoRescisao],
+  });
+  renderNotes(r.inssSaldo, r.irSaldo,
+    `Aqui aparece o INSS sobre o saldo de salário. O 13º proporcional paga INSS à parte (${brl(r.inss13.total)}). Aviso prévio indenizado e férias indenizadas, com o terço, não pagam INSS.`,
+    `Este é o IR sobre o saldo de salário. O 13º tem IR próprio (${brl(r.ir13.valor)}), e as verbas indenizadas não pagam IR.`);
+  const regras = [
+    "As verbas da rescisão devem ser pagas em até 10 dias depois do fim do contrato. Atrasou, a empresa paga multa de um salário.",
+    "O aviso prévio indenizado conta como tempo de serviço: os dias dele entram no cálculo do 13º e das férias proporcionais.",
+  ];
+  if (inp.tipo === "sem-justa-causa") regras.push("Na demissão sem justa causa você saca todo o FGTS com a multa de 40% e pode ter direito ao seguro-desemprego.");
+  if (inp.tipo === "acordo") regras.push("No acordo, o aviso indenizado e a multa do FGTS caem pela metade (20%), você saca 80% do FGTS e não recebe seguro-desemprego.");
+  if (inp.tipo === "pedido") regras.push("No pedido de demissão não há multa do FGTS, saque nem seguro-desemprego. 13º e férias proporcionais continuam garantidos.");
+  regras.push("Se a saída for em dezembro e a 1ª parcela do 13º já tiver sido paga, ela é descontada do 13º proporcional.");
+  setRules("Regras da rescisão", regras);
+}
+
+function renderAno(inp) {
+  $("vtCostField").hidden = !inp.vt;
+  const r = calcAno(inp);
+  renderSummary({
+    label: "Você recebe no ano",
+    liquido: r.liquido,
+    desc: `${brl(r.bruto)} bruto · 11 salários, férias com o terço e 13º`,
+    chips: [["Média por mês", brl(r.mediaMensal)], ["FGTS no ano", brl(r.fgts)], ["Total com FGTS", brl(R2(r.liquido + r.fgts))]],
+    gross: r.bruto, grossLabel: "Bruto no ano",
+    items: [
+      { label: "INSS", value: r.inss, color: COLORS.inss, note: effNote(r.inss, r.bruto) },
+      { label: "Imposto de Renda", value: r.ir, color: COLORS.ir, note: effNote(r.ir, r.bruto) },
+      { label: "Outros descontos", value: r.outros, color: COLORS.out },
+    ],
+    netLabel: "Líquido no ano",
+    fgtsHtml: `Para comparar com uma proposta PJ: somando o líquido e o FGTS, a CLT te dá <b>${brl(r.comFgts)}</b> por mês. Um contrato PJ precisa deixar pelo menos isso no seu bolso, já tirando impostos e contador, para empatar. Isso sem contar benefícios como plano de saúde e vale-refeição.`,
+  });
+  const head = "<th></th><th>Parte do ano</th><th>Ref.</th><th class=\"num\">Bruto</th><th class=\"num\">Descontos</th>";
+  const linha = (c, d, ref, b, ds) => row(c, d, ref, b, ds);
+  renderSlip({
+    title: "Ver o ano parte por parte",
+    head,
+    rows: [
+      linha("", "Salários", "11 meses", R2(11 * r.m.rendimentos), R2(11 * r.m.totalDesc)),
+      linha("", "Férias + 1/3", "30 dias", r.f.totalProv, r.f.totalDesc),
+      linha("", "13º salário", "12/12", r.d.integral, R2(r.d.integral - r.d.liquido)),
+      `<tr><td></td><td>FGTS depositado</td><td class="ref">8%</td><td class="num">${num(r.fgts)}</td><td class="num"></td></tr>`,
+    ],
+    prov: r.bruto, desc: R2(r.bruto - r.liquido), netLabel: "Líquido no ano (sem o FGTS)", net: r.liquido,
+  });
+  renderNotes(r.m.inss, r.m.ir,
+    `Aqui aparece o INSS de um mês normal. No ano, o INSS soma ${brl(r.inss)}: 11 salários, férias e 13º, cada um calculado separado.`,
+    `Este é o IR de um mês normal. No ano, o IR retido soma ${brl(r.ir)}.`);
+  setRules("Como o ano foi montado", [
+    "Num ano completo você trabalha 11 meses e tira 1 mês de férias. Nesse mês recebe as férias com 1/3 a mais, em vez do salário.",
+    "O 13º entra inteiro (12/12), dividido nas duas parcelas.",
+    "O vale-transporte e os outros descontos mensais contam só nos 11 meses de trabalho.",
+    "O FGTS é 8% de tudo: salários, férias com o terço e 13º.",
+  ]);
+}
+
+function renderHoraNote(rem) {
+  const partes = [`Valor da sua hora: <b>${brl(rem.valorHora)}</b>`];
+  if (rem.valorHe50 || rem.valorHe100) partes.push(`horas extras: <b>${brl(R2(rem.valorHe50 + rem.valorHe100))}</b>`);
+  if (rem.valorNoturno) partes.push(`noturno: <b>${brl(rem.valorNoturno)}</b>`);
+  if (rem.dsr) partes.push(`reflexo no DSR: <b>${brl(rem.dsr)}</b>`);
+  if (rem.valorAdicional) partes.push(`${rem.nomeAdicional.toLowerCase()}: <b>${brl(rem.valorAdicional)}</b>`);
+  $("horaNote").innerHTML = partes.join(" · ");
 }
 
 function render() {
+  syncAviso();
   const inp = ler();
   document.querySelectorAll("[data-only]").forEach((el) => { el.hidden = !el.dataset.only.split(" ").includes(mode); });
   document.querySelectorAll(".tabs a").forEach((a) => a.setAttribute("aria-selected", String(a.dataset.mode === mode)));
-  const media = mode !== "mensal";
-  $("extrasLabel").textContent = media ? "Média de horas extras e adicionais" : "Horas extras, comissões e adicionais";
-  $("extrasHint").textContent = media ? "Média mensal do que você recebeu de variável no período." : "Valores que entram junto com o salário no mês.";
-  const filled = ["extras", "pensao", ...(mode === "mensal" ? ["saude", "outros"] : [])].filter((id) => parseBRL($(id).value) > 0).length;
-  $("moreCount").textContent = filled ? `${filled} preenchido${filled > 1 ? "s" : ""}` : "opcional";
-  if (mode === "decimo-terceiro") renderDecimo(inp);
-  else if (mode === "ferias") renderFerias(inp);
-  else renderMensal(inp);
+  $("extrasIntro").textContent = mode === "mensal"
+    ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
+    : "Informe a média mensal. Para 13º, férias e rescisão, os adicionais que você recebe com frequência entram pela média.";
+  renderHoraNote(inp.rem);
+
+  const extrasFilled = ["he50", "he100", "noturnas"].filter((id) => parseNum($(id).value) > 0).length + (inp.extras > 0) + ($("adicional").value !== "nenhum");
+  $("extrasCount").textContent = extrasFilled ? `${extrasFilled} preenchido${extrasFilled > 1 ? "s" : ""}` : "opcional";
+  const descIds = ["pensao", ...(mode === "mensal" || mode === "ano" ? ["saude", "outros"] : [])];
+  const descFilled = descIds.filter((id) => parseBRL($(id).value) > 0).length;
+  $("descCount").textContent = descFilled ? `${descFilled} preenchido${descFilled > 1 ? "s" : ""}` : "opcional";
+
+  ({ "decimo-terceiro": renderDecimo, ferias: renderFerias, rescisao: renderRescisao, ano: renderAno }[mode] || renderMensal)(inp);
+
+  $("printTitle").textContent = `${MODE_NAMES[mode]} · estimativa CLT 2026`;
+  $("printInfo").textContent = `Salário bruto ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"} · gerado em ${new Date().toLocaleDateString("pt-BR")}`;
 }
 
 function modeFromHash() {
   const h = location.hash.slice(1);
   mode = MODES.includes(h) ? h : "mensal";
   render();
+}
+
+/* Tema: automático → claro → escuro */
+const THEMES = [
+  { id: "auto", label: "Tema automático", icon: '<path d="M12 3a9 9 0 1 0 0 18z" fill="currentColor"/><circle cx="12" cy="12" r="9"/>' },
+  { id: "light", label: "Tema claro", icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' },
+  { id: "dark", label: "Tema escuro", icon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>' },
+];
+let theme = "auto";
+try { theme = localStorage.getItem("tema") || "auto"; } catch (_) {}
+function applyTheme() {
+  const t = THEMES.find((x) => x.id === theme) || THEMES[0];
+  if (t.id === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t.id);
+  $("themeBtn").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t.icon}</svg>${t.label.replace("Tema ", "")}`;
+  $("themeBtn").setAttribute("aria-label", `${t.label}. Clique para trocar.`);
+}
+$("themeBtn").addEventListener("click", () => {
+  theme = THEMES[(THEMES.findIndex((x) => x.id === theme) + 1) % THEMES.length].id;
+  try { localStorage.setItem("tema", theme); } catch (_) {}
+  applyTheme();
+});
+applyTheme();
+
+/* PDF: abre os detalhes e chama a impressão do navegador */
+let emFrame = true;
+try { emFrame = window.self !== window.top; } catch (_) {}
+$("printBtn").hidden = emFrame;
+$("printBtn").addEventListener("click", () => {
+  const drawers = [...document.querySelectorAll(".drawers details")];
+  const antes = drawers.map((d) => d.open);
+  drawers.forEach((d) => (d.open = true));
+  const restaurar = () => { drawers.forEach((d, i) => (d.open = antes[i])); window.removeEventListener("afterprint", restaurar); };
+  window.addEventListener("afterprint", restaurar);
+  window.print();
+});
+
+/* Data de saída padrão: hoje */
+{
+  const hoje = new Date();
+  $("saida").value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
 }
 
 $("form").addEventListener("input", render);

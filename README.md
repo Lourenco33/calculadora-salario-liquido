@@ -1,5 +1,13 @@
 # Calculadora de Salário Líquido CLT 2026
 
-Calcula o salário líquido mensal, o 13º e as férias de um contrato CLT, com INSS progressivo e IRRF com a isenção até R$ 5.000 da Lei 15.270/2025.
+Calcula, para um contrato CLT:
 
-É um site de um único arquivo (`index.html`), sem dependências. Valores são estimativas: confira com o holerite da empresa.
+- **Salário do mês**, com horas extras (50% e 100%), adicional noturno, DSR, insalubridade ou periculosidade
+- **13º salário**, com as duas parcelas
+- **Férias**, com o terço e a venda de 1/3
+- **Rescisão**: demissão sem justa causa, pedido de demissão ou acordo, com aviso prévio, 13º e férias proporcionais e FGTS com multa
+- **Resumo do ano**: salários, férias, 13º e FGTS somados
+
+Usa INSS progressivo e IRRF com a isenção até R$ 5.000 da Lei 15.270/2025. Dá para salvar o resultado em PDF e trocar entre tema claro e escuro.
+
+É um site de um único arquivo (`index.html`), sem dependências. Os valores são estimativas: confira com o holerite da empresa.
