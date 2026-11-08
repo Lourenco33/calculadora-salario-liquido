@@ -444,6 +444,22 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
               <span class="hint">Se for menos que a porcentagem do salário, o desconto é só esse valor.</span>
             </div>
           </div>
+          <div class="inline">
+            <div class="txt"><strong>Vale-refeição ou alimentação</strong><span class="hint">Cai no cartão, fora do salário, e não paga INSS nem IR.</span></div>
+            <label class="switch"><input id="vr" type="checkbox" aria-label="Recebo vale-refeição ou alimentação"><i></i></label>
+          </div>
+          <div class="sub" id="vrField">
+            <div class="field">
+              <label for="vrValor">Quanto cai no cartão por mês</label>
+              <div class="money"><span>R$</span><input id="vrValor" type="text" inputmode="decimal" value="800,00"></div>
+              <span class="hint">Some refeição e alimentação, se você recebe os dois.</span>
+            </div>
+            <div class="field">
+              <label for="vrPct">Desconto no salário</label>
+              <div class="money suffix"><input id="vrPct" type="text" inputmode="decimal" value="0"><span>%</span></div>
+              <span class="hint">Porcentagem do valor do benefício. Pelo PAT o máximo é 20%. Muitas empresas não descontam nada.</span>
+            </div>
+          </div>
         </div>
 
         <details class="more" id="moreExtras">
@@ -709,7 +725,10 @@ function calcRemuneracao({ bruto, adicional = "nenhum", he50 = 0, he100 = 0, not
 }
 
 // Faltas: desconta o dia e o DSR da semana (uma falta por semana, até o número de domingos e feriados).
-function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0, faltas = 0 }) {
+const VR_MAX_PCT = 20;
+function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0, faltas = 0, vr = false, vrValor = 0, vrPct = 0 }) {
+  const beneficioVR = vr ? R2(vrValor) : 0;
+  const descVR = vr ? R2(vrValor * Math.max(0, Math.min(VR_MAX_PCT, vrPct)) / 100) : 0;
   const diaria = (rem.bruto + rem.valorAdicional) / 30;
   const descFaltas = R2(diaria * faltas);
   const descDsrFaltas = R2(diaria * Math.min(faltas, rem.diasDsr ?? 5));
@@ -719,8 +738,8 @@ function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_M
   const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
   const tetoVT = rem.bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
   const descVT = vt ? R2(vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) : 0;
-  const totalDesc = R2(totalFaltas + inss.total + ir.valor + descVT + pensao + saude + outros);
-  return { rem, prov: rem.total, rendimentos, faltas, descFaltas, descDsrFaltas, totalFaltas, inss, ir, descVT, pensao, saude, outros, totalDesc,
+  const totalDesc = R2(totalFaltas + inss.total + ir.valor + descVT + descVR + pensao + saude + outros);
+  return { rem, prov: rem.total, rendimentos, faltas, descFaltas, descDsrFaltas, totalFaltas, inss, ir, descVT, descVR, beneficioVR, pensao, saude, outros, totalDesc,
     liquido: R2(rem.total - totalDesc), fgts: R2(rendimentos * 0.08) };
 }
 
@@ -906,7 +925,10 @@ function calcAno(args) {
   const liquido = R2(11 * m.liquido + f.liquido + d.liquido);
   const outros = R2(bruto - inss - ir - liquido);
   const fgts = R2(11 * m.fgts + f.fgts + d.fgts);
-  return { m, d, f, bruto, inss, ir, outros, liquido, fgts, mediaMensal: R2(liquido / 12), comFgts: R2((liquido + fgts) / 12) };
+  // VR/VA: considerado nos 11 meses de trabalho (nas férias a maioria das empresas não paga)
+  const beneficios = R2(11 * m.beneficioVR);
+  return { m, d, f, bruto, inss, ir, outros, liquido, fgts, beneficios,
+    mediaMensal: R2(liquido / 12), comFgts: R2((liquido + fgts + beneficios) / 12) };
 }
 /* ===== CALC END ===== */
 
@@ -925,15 +947,16 @@ function parseBRL(str) {
 const parseNum = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) && n > 0 ? n : 0; };
 const clampInt = (v, lo, hi, def) => { const n = parseInt(v, 10); return isNaN(n) ? def : Math.max(lo, Math.min(hi, n)); };
 
-const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros", "saldoFgts"];
+const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros", "saldoFgts", "vrValor"];
 const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano"];
 const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano" };
 let mode = "mensal";
 
-function readPct() {
-  const n = parseFloat(String($("vtPct").value).replace(",", ".").replace(/[^\d.]/g, ""));
-  return isFinite(n) ? Math.max(0, Math.min(VT_MAX_PCT, n)) : VT_MAX_PCT;
+function readPctDe(id, max, padrao) {
+  const n = parseFloat(String($(id).value).replace(",", ".").replace(/[^\d.]/g, ""));
+  return isFinite(n) ? Math.max(0, Math.min(max, n)) : padrao;
 }
+const readPct = () => readPctDe("vtPct", VT_MAX_PCT, VT_MAX_PCT);
 const radio = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
 
 function ler() {
@@ -950,6 +973,7 @@ function ler() {
     dependentes: clampInt($("dep").value, 0, 20, 0),
     pensao: v.pensao, vt: $("vt").checked, vtPct: readPct(), vtCusto: v.vtCusto, saude: v.saude, outros: v.outros,
     faltas: clampInt($("faltas").value, 0, 30, 0),
+    vr: $("vr").checked, vrValor: v.vrValor, vrPct: readPctDe("vrPct", VR_MAX_PCT, 0),
   };
   const inverso = $("inverso").checked;
   const alvo = v.bruto;
@@ -1077,6 +1101,7 @@ function renderMensal(inp) {
   const temExtras = r.prov !== inp.bruto;
   const chips = temExtras ? [["Salário base", brl(inp.bruto)], ["Extras e adicionais", brl(R2(r.prov - inp.bruto))]] : [];
   if (inp.inverso) chips.unshift(["Líquido desejado", brl(inp.alvo)]);
+  if (r.beneficioVR) chips.push(["VR/VA no cartão", brl(r.beneficioVR)], ["Salário + VR/VA", brl(R2(r.liquido + r.beneficioVR))]);
   renderSummary({
     label: inp.inverso ? "Salário bruto necessário" : "Você recebe por mês",
     liquido: r.liquido,
@@ -1091,6 +1116,7 @@ function renderMensal(inp) {
       { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.rendimentos) },
       { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.rendimentos) },
       { label: "Vale-transporte", value: r.descVT, color: COLORS.out },
+      { label: "Desconto do VR/VA", value: r.descVR, color: COLORS.out },
       { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
       { label: "Plano de saúde", value: r.saude, color: COLORS.out },
       { label: "Outros descontos", value: r.outros, color: COLORS.out },
@@ -1107,6 +1133,7 @@ function renderMensal(inp) {
       row("901", "INSS", inssRef(r.inss, r.rendimentos), 0, r.inss.total),
       row("902", "IRRF", irRef(r.ir), 0, r.ir.valor),
       r.descVT ? row("910", "Vale-transporte", pct(inp.bruto ? r.descVT / inp.bruto : 0, 2), 0, r.descVT) : "",
+      r.descVR ? row("911", "Vale-refeição/alimentação", pct(inp.vrPct / 100, 2), 0, r.descVR) : "",
       r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
       r.saude ? row("930", "Plano de saúde", "", 0, r.saude) : "",
       r.outros ? row("990", "Outros descontos", "", 0, r.outros) : "",
@@ -1122,6 +1149,7 @@ function renderMensal(inp) {
     "Hora extra vale pelo menos 50% a mais que a hora normal. Em domingos e feriados não compensados, costuma ser 100%.",
     "Horas extras e adicional noturno feitos com frequência também aumentam o descanso semanal remunerado (DSR).",
     "O vale-transporte desconta no máximo 6% do salário-base, e a empresa pode descontar menos. Se as passagens custam menos que isso, desconta só o custo delas.",
+    "Vale-refeição e vale-alimentação não fazem parte do salário: não pagam INSS, IR nem FGTS. Pelo PAT, a empresa pode descontar no máximo 20% do valor do benefício.",
   ]);
 }
 
@@ -1324,7 +1352,11 @@ function renderAno(inp) {
     label: "Você recebe no ano",
     liquido: r.liquido,
     desc: `${brl(r.bruto)} bruto · 11 salários, férias com o terço e 13º`,
-    chips: [["Média por mês", brl(r.mediaMensal)], ["FGTS no ano", brl(r.fgts)], ["Total com FGTS", brl(R2(r.liquido + r.fgts))]],
+    chips: [
+      ["Média por mês", brl(r.mediaMensal)], ["FGTS no ano", brl(r.fgts)],
+      ...(r.beneficios ? [["VR/VA no ano", brl(r.beneficios)]] : []),
+      [r.beneficios ? "Total com FGTS e VR/VA" : "Total com FGTS", brl(R2(r.liquido + r.fgts + r.beneficios))],
+    ],
     gross: r.bruto, grossLabel: "Bruto no ano",
     items: [
       { label: "INSS", value: r.inss, color: COLORS.inss, note: effNote(r.inss, r.bruto) },
@@ -1332,7 +1364,7 @@ function renderAno(inp) {
       { label: "Outros descontos", value: r.outros, color: COLORS.out },
     ],
     netLabel: "Líquido no ano",
-    fgtsHtml: `Para comparar com uma proposta PJ: somando o líquido e o FGTS, a CLT te dá <b>${brl(r.comFgts)}</b> por mês. Um contrato PJ precisa deixar pelo menos isso no seu bolso, já tirando impostos e contador, para empatar. Isso sem contar benefícios como plano de saúde e vale-refeição.`,
+    fgtsHtml: `Para comparar com uma proposta PJ: somando o líquido, o FGTS${r.beneficios ? " e o VR/VA" : ""}, a CLT te dá <b>${brl(r.comFgts)}</b> por mês. Um contrato PJ precisa deixar pelo menos isso no seu bolso, já tirando impostos e contador, para empatar.${r.beneficios ? "" : " Se você recebe vale-refeição ou alimentação, ligue essa opção para a conta ficar completa."}`,
   });
   const head = "<th></th><th>Parte do ano</th><th>Ref.</th><th class=\"num\">Bruto</th><th class=\"num\">Descontos</th>";
   const linha = (c, d, ref, b, ds) => row(c, d, ref, b, ds);
@@ -1344,6 +1376,7 @@ function renderAno(inp) {
       linha("", "Férias + 1/3", "30 dias", r.f.totalProv, r.f.totalDesc),
       linha("", "13º salário", "12/12", r.d.integral, R2(r.d.integral - r.d.liquido)),
       `<tr><td></td><td>FGTS depositado</td><td class="ref">8%</td><td class="num">${num(r.fgts)}</td><td class="num"></td></tr>`,
+      r.beneficios ? `<tr><td></td><td>VR/VA no cartão</td><td class="ref">11 meses</td><td class="num">${num(r.beneficios)}</td><td class="num"></td></tr>` : "",
     ],
     prov: r.bruto, desc: R2(r.bruto - r.liquido), netLabel: "Líquido no ano (sem o FGTS)", net: r.liquido,
   });
@@ -1353,7 +1386,7 @@ function renderAno(inp) {
   setRules("Como o ano foi montado", [
     "Num ano completo você trabalha 11 meses e tira 1 mês de férias. Nesse mês recebe as férias com 1/3 a mais, em vez do salário.",
     "O 13º entra inteiro (12/12), dividido nas duas parcelas.",
-    "O vale-transporte e os outros descontos mensais contam só nos 11 meses de trabalho.",
+    "O vale-transporte, o VR/VA e os outros descontos mensais contam só nos 11 meses de trabalho. Nas férias a maioria das empresas não paga VR/VA.",
     "O FGTS é 8% de tudo: salários, férias com o terço e 13º.",
   ]);
 }
@@ -1376,6 +1409,8 @@ function render() {
     ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
     : "Informe a média mensal. Para 13º, férias e rescisão, os adicionais que você recebe com frequência entram pela média.";
   renderHoraNote(inp.rem);
+  $("vtCostField").hidden = !inp.vt;
+  $("vrField").hidden = !inp.vr;
   const naAbaSalario = mode === "mensal";
   $("brutoLabel").textContent = inp.inverso ? (naAbaSalario ? "Quanto você quer receber líquido" : "Líquido desejado (aba Salário)") : "Salário bruto mensal";
   $("brutoHint").textContent = inp.inverso
@@ -1559,6 +1594,7 @@ $("form").addEventListener("input", render);
 $("form").addEventListener("change", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("vtPct").addEventListener("blur", () => { $("vtPct").value = readPct().toLocaleString("pt-BR", { maximumFractionDigits: 2 }); render(); });
+$("vrPct").addEventListener("blur", () => { $("vrPct").value = readPctDe("vrPct", VR_MAX_PCT, 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 }); render(); });
 moneyIds.forEach((id) => {
   $(id).addEventListener("blur", () => { $(id).value = num(parseBRL($(id).value)); });
   $(id).addEventListener("focus", () => { if (parseBRL($(id).value) === 0) $(id).select(); });

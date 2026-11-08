@@ -2,7 +2,7 @@
 
 Calcula, para um contrato CLT:
 
-- **Salário do mês**, com horas extras (50% e 100%), adicional noturno, DSR, insalubridade ou periculosidade e faltas
+- **Salário do mês**, com horas extras (50% e 100%), adicional noturno, DSR, insalubridade ou periculosidade, faltas e vale-refeição/alimentação
 - **Cálculo inverso**: diga quanto quer receber líquido e veja o bruto necessário
 - **13º salário**, com as duas parcelas
 - **Férias**, com o terço e a venda de 1/3
