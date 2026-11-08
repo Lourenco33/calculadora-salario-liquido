@@ -243,6 +243,44 @@ tr.hit td { background: var(--accent-soft); font-weight: 600; }
 footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .print-only { display: none; }
 
+/* Tela de início */
+.home { display: grid; gap: 20px; }
+.hero-card {
+  display: grid; gap: 4px; text-align: left; width: 100%; border: 0; cursor: pointer; font: inherit;
+  padding: 24px; border-radius: 22px; background: var(--accent); color: var(--on-accent); box-shadow: var(--shadow);
+  transition: transform .15s ease, filter .15s ease;
+}
+.hero-card:hover { transform: translateY(-2px); filter: brightness(1.04); }
+.hero-card:focus-visible, .tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.hc-lbl { font-weight: 600; opacity: .85; }
+.hc-val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 9vw, 3.8rem); line-height: 1.02; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.hc-info { opacity: .85; font-size: .95rem; }
+.hc-cta { margin-top: 12px; font-weight: 700; font-size: .92rem; padding: 8px 14px; border-radius: 10px; width: fit-content; background: rgba(255, 255, 255, .18); }
+.hc-cta::after { content: " →"; }
+.section-title { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 8px 0 -6px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+.tile {
+  display: grid; align-content: start; gap: 5px; text-align: left; border: 0; cursor: pointer; font: inherit; min-width: 0;
+  background: var(--card); color: var(--ink); border-radius: 18px; padding: 16px; box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.tile:hover { transform: translateY(-2px); }
+.tile .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 6px; }
+.tile .ic svg { width: 22px; height: 22px; }
+.tile b { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; line-height: 1.2; }
+.tile small { color: var(--muted); font-size: .84rem; line-height: 1.35; }
+.tile em { font-style: normal; font-family: var(--font-mono); font-weight: 600; color: var(--accent); font-size: .95rem; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.tile em.txt { font-family: var(--font-body); font-size: .86rem; }
+@media (max-width: 640px) { .tile { padding: 14px; } .hero-card { padding: 20px; } }
+
+/* Calculadora */
+.calc { display: grid; gap: 22px; }
+.topbar { display: flex; align-items: center; gap: 14px; }
+.topbar .tb-title { display: grid; gap: 2px; min-width: 0; }
+.topbar h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+.btn.back { padding: 9px 14px 9px 10px; }
+
 /* Barra fixa no celular com o valor líquido */
 .mbar { display: none; }
 @media (max-width: 880px) {
@@ -290,7 +328,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   }
   @page { margin: 14mm; }
   body { padding: 0; background: #fff; font-size: 12px; }
-  header, .tabs, .grid > .card:first-child, footer, .no-print, .rules-drawer, .mbar { display: none !important; }
+  header, .tabs, .topbar, #homeView, .grid > .card:first-child, footer, .no-print, .rules-drawer, .mbar { display: none !important; }
   .grid { display: block; }
   .card { padding: 0; border-radius: 0; }
   .result { position: static; gap: 14px; }
@@ -306,6 +344,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 </style>
 
 <div class="wrap">
+  <section id="homeView" class="home" hidden>
   <header>
     <div class="intro">
       <span class="eyebrow">CLT · tabelas de 2026</span>
@@ -315,13 +354,50 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
     <button type="button" class="btn" id="themeBtn" aria-label="Mudar tema"></button>
   </header>
 
-  <nav class="tabs" role="tablist" aria-label="O que você quer calcular">
-    <a href="#mensal" role="tab" data-mode="mensal" aria-selected="true"><b>Salário</b><small>do mês</small></a>
-    <a href="#decimo-terceiro" role="tab" data-mode="decimo-terceiro" aria-selected="false"><b>13º</b><small>as duas parcelas</small></a>
-    <a href="#ferias" role="tab" data-mode="ferias" aria-selected="false"><b>Férias</b><small>com o terço</small></a>
-    <a href="#rescisao" role="tab" data-mode="rescisao" aria-selected="false"><b>Rescisão</b><small>ao sair da empresa</small></a>
-    <a href="#ano" role="tab" data-mode="ano" aria-selected="false"><b>Ano</b><small>tudo somado</small></a>
-  </nav>
+  <button type="button" class="hero-card" data-go="mensal" data-inverso="0">
+    <span class="hc-lbl">Seu salário líquido por mês</span>
+    <span class="hc-val" id="homeLiquido">R$ 0,00</span>
+    <span class="hc-info" id="homeInfo"></span>
+    <span class="hc-cta" id="homeCta">Ver detalhes</span>
+  </button>
+
+  <h2 class="section-title">O que você quer calcular?</h2>
+  <div class="tiles">
+    <button type="button" class="tile" data-go="decimo-terceiro">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/><path d="M12 8c-1.5-3-5-4-5-1.5S10 8 12 8zm0 0c1.5-3 5-4 5-1.5S14 8 12 8z"/></svg></span>
+      <b>13º salário</b><small>As duas parcelas, já com descontos</small><em id="tile13"></em>
+    </button>
+    <button type="button" class="tile" data-go="ferias">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9z"/><path d="M12 12v7a2 2 0 0 0 4 0"/></svg></span>
+      <b>Férias</b><small>Com o terço e a venda de dias</small><em id="tileFerias"></em>
+    </button>
+    <button type="button" class="tile" data-go="rescisao">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="m10 17-5-5 5-5"/><path d="M5 12h11"/></svg></span>
+      <b>Rescisão</b><small>Quanto recebe ao sair da empresa</small><em class="txt">Aviso, FGTS e seguro</em>
+    </button>
+    <button type="button" class="tile" data-go="ano">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+      <b>Resumo do ano</b><small>Tudo somado e comparação com PJ</small><em id="tileAno"></em>
+    </button>
+    <button type="button" class="tile" data-go="mensal" data-inverso="1">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
+      <b>Quanto preciso ganhar?</b><small>Diga o líquido e veja o bruto</small><em class="txt">Bom para negociar</em>
+    </button>
+    <button type="button" class="tile" data-go="mensal" data-inverso="0" data-open="moreExtras">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+      <b>Horas extras</b><small>Extras, noturno, insalubridade e DSR</small><em class="txt" id="tileHoras">Valor da sua hora</em>
+    </button>
+  </div>
+  </section>
+
+  <div id="calcView" class="calc">
+  <div class="topbar">
+    <button type="button" class="btn back" id="backBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Início
+    </button>
+    <div class="tb-title"><span class="eyebrow">CLT · tabelas de 2026</span><h1 id="viewTitle">Salário do mês</h1></div>
+  </div>
 
   <div class="grid">
     <section class="card">
@@ -636,6 +712,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
         </details>
       </div>
     </section>
+  </div>
+
   </div>
 
   <div class="mbar" id="mbar">
@@ -1404,7 +1482,12 @@ function render() {
   syncAviso();
   const inp = ler();
   document.querySelectorAll("[data-only]").forEach((el) => { el.hidden = !el.dataset.only.split(" ").includes(mode); });
-  document.querySelectorAll(".tabs a").forEach((a) => a.setAttribute("aria-selected", String(a.dataset.mode === mode)));
+  const naHome = mode === "inicio";
+  $("homeView").hidden = !naHome;
+  $("calcView").hidden = naHome;
+  $("mbar").hidden = naHome;
+  if (naHome) { renderHome(inp); salvar(); return; }
+  $("viewTitle").textContent = mode === "mensal" && inp.inverso ? "Quanto preciso ganhar?" : MODE_NAMES[mode];
   $("extrasIntro").textContent = mode === "mensal"
     ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
     : "Informe a média mensal. Para 13º, férias e rescisão, os adicionais que você recebe com frequência entram pela média.";
@@ -1430,11 +1513,57 @@ function render() {
   $("printInfo").textContent = `Salário bruto ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"} · gerado em ${new Date().toLocaleDateString("pt-BR")}`;
 }
 
+/* Tela de início: resumo do salário e prévia de cada cálculo */
+function renderHome(inp) {
+  const m = calcMensal(inp);
+  const base = { remuneracao: inp.rem.total, dependentes: inp.dependentes, pensao: inp.pensao };
+  $("homeLiquido").textContent = brl(m.liquido);
+  $("homeInfo").textContent = `Salário bruto de ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"}${exemplo ? " · valores de exemplo" : ""}`;
+  $("homeCta").textContent = exemplo ? "Colocar o meu salário" : "Ver detalhes";
+  $("tile13").textContent = brl(calcDecimo({ ...base, meses: inp.meses }).liquido);
+  $("tileFerias").textContent = brl(calcFerias({ ...base, direito: inp.direito, vender: inp.vender }).liquido);
+  $("tileAno").textContent = brl(calcAno(inp).liquido);
+  $("tileHoras").textContent = `Sua hora: ${brl(inp.rem.valorHora)}`;
+}
+
+let veioDoInicio = false;
+let rolarPara = null;
 function modeFromHash() {
   const h = location.hash.slice(1);
-  mode = MODES.includes(h) ? h : "mensal";
+  mode = MODES.includes(h) ? h : "inicio";
+  if (mode === "inicio") veioDoInicio = false;
   render();
+  if (rolarPara && mode !== "inicio") {
+    const alvo = $(rolarPara);
+    rolarPara = null;
+    requestAnimationFrame(() => {
+      alvo.scrollIntoView({ block: "center" });
+      if (alvo.tagName === "INPUT") { alvo.focus({ preventScroll: true }); alvo.select(); }
+    });
+  } else {
+    window.scrollTo(0, 0);
+  }
 }
+
+document.querySelectorAll("[data-go]").forEach((el) =>
+  el.addEventListener("click", () => {
+    if (el.dataset.inverso !== undefined) {
+      const quer = el.dataset.inverso === "1";
+      if ($("inverso").checked !== quer) {
+        $("inverso").checked = quer;
+        $("inverso").dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+    if (el.dataset.open) { $(el.dataset.open).open = true; rolarPara = el.dataset.open; }
+    if (exemplo && el.classList.contains("hero-card")) rolarPara = "bruto";
+    veioDoInicio = true;
+    location.hash = el.dataset.go;
+  })
+);
+$("backBtn").addEventListener("click", () => {
+  if (veioDoInicio) history.back();
+  else location.hash = "inicio";
+});
 
 /* Tema: automático → claro → escuro */
 const THEMES = [
@@ -1518,9 +1647,10 @@ $("saida").value = hojeISO();
 /* Dados salvos neste aparelho (localStorage) */
 const CHAVE = "calculadora-clt-dados-v1";
 let restaurando = false;
+let exemplo = true; // true enquanto a pessoa ainda não mexeu nos valores de exemplo
 function campos() { return [...$("form").querySelectorAll("input, select")]; }
 function coletar() {
-  const dados = { modo: mode, campos: {}, radios: {}, abertos: {} };
+  const dados = { modo: mode, editado: !exemplo, campos: {}, radios: {}, abertos: {} };
   campos().forEach((el) => {
     if (el.type === "radio") { if (el.checked) dados.radios[el.name] = el.value; }
     else if (el.type === "checkbox") dados.campos[el.id] = el.checked;
@@ -1566,12 +1696,14 @@ try {
   }
 } catch (_) { doLink = null; }
 const salvos = restaurar(doLink);
+exemplo = !(doLink || (salvos && salvos.editado));
 document.querySelectorAll("details[id]").forEach((d) => d.addEventListener("toggle", salvar));
 
 $("clearBtn").addEventListener("click", () => {
   try { localStorage.removeItem(CHAVE); } catch (_) {}
   restaurando = true;
   $("form").reset();
+  exemplo = true;
   $("saida").value = hojeISO();
   $("aviso").dataset.tipo = "";
   restaurando = false;
@@ -1590,8 +1722,8 @@ $("inverso").addEventListener("change", () => {
   $("inverso").checked = ligado;
   $("bruto").value = num(ligado ? calcMensal(antes).liquido : antes.bruto);
 });
-$("form").addEventListener("input", render);
-$("form").addEventListener("change", render);
+$("form").addEventListener("input", () => { exemplo = false; render(); });
+$("form").addEventListener("change", (e) => { if (e.isTrusted) exemplo = false; render(); });
 $("form").addEventListener("submit", (e) => e.preventDefault());
 $("vtPct").addEventListener("blur", () => { $("vtPct").value = readPct().toLocaleString("pt-BR", { maximumFractionDigits: 2 }); render(); });
 $("vrPct").addEventListener("blur", () => { $("vrPct").value = readPctDe("vrPct", VR_MAX_PCT, 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 }); render(); });
@@ -1603,21 +1735,11 @@ document.querySelectorAll("[data-step]").forEach((b) =>
   b.addEventListener("click", () => {
     const el = $(b.dataset.target);
     el.value = clampInt((parseInt(el.value, 10) || 0) + Number(b.dataset.step), Number(el.min), Number(el.max), Number(el.min));
-    render();
-  })
-);
-document.querySelectorAll(".tabs a").forEach((a) =>
-  a.addEventListener("click", (e) => {
-    e.preventDefault();
-    mode = a.dataset.mode;
-    try { history.replaceState(null, "", "#" + mode); } catch (_) { location.hash = mode; }
+    exemplo = false;
     render();
   })
 );
 window.addEventListener("hashchange", modeFromHash);
-if (!location.hash && salvos && MODES.includes(salvos.modo)) {
-  try { history.replaceState(null, "", "#" + salvos.modo); } catch (_) {}
-}
 modeFromHash();
 </script>
 
