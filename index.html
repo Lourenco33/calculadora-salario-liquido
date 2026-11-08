@@ -220,9 +220,13 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .li.gross.sum { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; }
 .li.gross.sum span { font-weight: 600; }
 .li.after { padding-top: 10px; }
-.li.total { margin-top: 6px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); grid-template-columns: 0 minmax(0, 1fr) auto; }
-.li.total span { font-weight: 700; }
-.li.total b { color: var(--accent); font-size: 1.1rem; }
+.li.after span { font-weight: 700; }
+.li.after b { color: var(--accent); font-size: 1.05rem; }
+.li.total { margin-top: 8px; padding: 14px 16px; border-radius: 14px; background: var(--accent); color: var(--on-accent); grid-template-columns: 0 minmax(0, 1fr) auto; }
+.li.total span { font-weight: 800; }
+.li.total b { color: var(--on-accent); font-size: 1.15rem; font-weight: 700; }
+.chip.strong { background: var(--accent); color: var(--on-accent); }
+.chip.strong small { color: var(--on-accent); opacity: .85; }
 .fgts { font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
 .fgts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
 
@@ -288,8 +292,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .hc-lbl { font-weight: 600; opacity: .85; }
 .hc-val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 9vw, 3.8rem); line-height: 1.02; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .hc-info { opacity: .85; font-size: .95rem; }
-.hc-vr { display: block; margin-top: 4px; }
-.hc-vr b { font-weight: 800; }
+.hc-vr { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.vr-part { display: grid; padding: 9px 14px; border-radius: 12px; background: rgba(255, 255, 255, .16); }
+.vr-part small { font-size: .78rem; font-weight: 600; opacity: .9; }
+.vr-part b { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.vr-part:last-child { background: rgba(255, 255, 255, .26); }
 .hc-cta { margin-top: 12px; font-weight: 700; font-size: .92rem; padding: 8px 14px; border-radius: 10px; width: fit-content; background: rgba(255, 255, 255, .18); }
 .hc-cta::after { content: " →"; }
 .section-title { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin: 8px 0 -6px; }
@@ -359,6 +366,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   .mbar div { display: grid; min-width: 0; }
   .mbar small { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mbar b { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; line-height: 1.1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .mbar-extra { font-size: .82rem; font-weight: 700; color: var(--ink); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mbar-extra b { font: inherit; color: var(--accent); }
   .mbar button { border: 0; border-radius: 11px; padding: 10px 14px; background: var(--accent); color: var(--on-accent); font: 700 .9rem var(--font-body); cursor: pointer; white-space: nowrap; }
 }
 
@@ -429,6 +438,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
       <span class="hc-lbl">Seu salário líquido por mês</span>
       <span class="hc-val" id="homeLiquido">R$ 0,00</span>
       <span class="hc-info" id="homeInfo"></span>
+      <span class="hc-vr" id="homeVr" hidden></span>
       <span class="hc-cta" id="homeCta">Ver detalhes</span>
     </span>
     <span class="hc-side" id="homeSide"></span>
@@ -804,7 +814,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   <div class="toast" id="toast" hidden role="status"><span id="toastTxt"></span><button type="button" id="toastUndo">Desfazer</button></div>
 
   <div class="mbar" id="mbar">
-    <div><small id="mbarLbl">Você recebe por mês</small><b id="mbarVal">R$ 0,00</b></div>
+    <div><small id="mbarLbl">Você recebe por mês</small><b id="mbarVal">R$ 0,00</b><span class="mbar-extra" id="mbarExtra" hidden></span></div>
     <button type="button" id="mbarBtn">Ver detalhes</button>
   </div>
 
@@ -1164,16 +1174,18 @@ function ler() {
 const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
 
 let resumoAtual = { label: "", valor: 0, desc: "" };
-function renderSummary({ label, liquido, headline, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml, earnings = [], afterNet = [], totalLabel = "Total no mês" }) {
+function renderSummary({ label, liquido, headline, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml, earnings = [], afterNet = [], totalLabel = "Total no mês", mbarExtra = "" }) {
   const destaque = headline ?? liquido;
   $("heroLbl").textContent = label;
   $("liquido").textContent = brl(destaque);
   $("mbarLbl").textContent = label;
   $("mbarVal").textContent = brl(destaque);
+  $("mbarExtra").innerHTML = mbarExtra;
+  $("mbarExtra").hidden = !mbarExtra;
   resumoAtual = { label, valor: destaque, desc: error || desc, chips };
   $("heroDesc").textContent = error || desc;
   $("heroDesc").classList.toggle("error", !!error);
-  $("chips").innerHTML = chips.map(([s, b]) => `<div class="chip"><small>${s}</small><b>${b}</b></div>`).join("");
+  $("chips").innerHTML = chips.map(([s, b, cls]) => `<div class="chip ${cls || ""}"><small>${s}</small><b>${b}</b></div>`).join("");
   $("chips").hidden = !chips.length;
   $("chips").style.setProperty("--n", chips.length === 4 ? 2 : Math.max(1, Math.min(3, chips.length)));
 
@@ -1190,7 +1202,7 @@ function renderSummary({ label, liquido, headline, desc, error, chips, gross, gr
     (shown.length ? "" : `<div class="li"><i style="--c:transparent"></i><span class="hint">Nenhum desconto</span><b></b></div>`) +
     linha("net", COLORS.liq, netLabel, brl(liquido)) +
     (depois.length
-      ? depois.map((a) => linha("plus after", "transparent", a.label, "+ " + brl(a.value))).join("") +
+      ? depois.map((a) => linha("after", COLORS.liq, a.label, "+ " + brl(a.value))).join("") +
         linha("total", "transparent", totalLabel, brl(R2(liquido + depois.reduce((s, a) => s + a.value, 0))))
       : "");
 
@@ -1282,15 +1294,16 @@ function renderMensal(inp) {
   const r = calcMensal(inp);
   const temExtras = r.prov !== inp.bruto;
   const rm = r.rem;
-  const chips = inp.inverso ? [["Líquido desejado", brl(inp.alvo)]] : [];
   const totalMes = R2(r.liquido + r.beneficioVR);
+  const chips = inp.inverso ? [["Líquido desejado", brl(inp.alvo)]] : [];
+  if (r.beneficioVR && !inp.inverso) chips.push(["Cai na conta", brl(r.liquido)], ["Cai no cartão (VR/VA)", brl(r.beneficioVR)], ["Total no mês", brl(totalMes), "strong"]);
   renderSummary({
     label: inp.inverso ? "Salário bruto necessário" : "Você recebe por mês",
     liquido: r.liquido,
     headline: inp.inverso ? inp.bruto : undefined,
     desc: inp.inverso
       ? `para receber ${brl(r.liquido)} líquido por mês`
-      : `de ${brl(r.prov)} bruto · ${pct(r.prov ? r.totalDesc / r.prov : 0)} em descontos` + (r.beneficioVR ? ` · ${brl(totalMes)} com VR/VA` : ""),
+      : `de ${brl(r.prov)} bruto · ${pct(r.prov ? r.totalDesc / r.prov : 0)} em descontos`,
     chips,
     earnings: [
       { label: "Salário base", value: rm.bruto },
@@ -1303,6 +1316,7 @@ function renderMensal(inp) {
     ],
     afterNet: [{ label: "VR/VA no cartão", value: r.beneficioVR }],
     totalLabel: "Total no mês",
+    mbarExtra: r.beneficioVR && !inp.inverso ? `+ ${brl(r.beneficioVR)} VR/VA = <b>${brl(totalMes)}</b>` : "",
     gross: r.prov, grossLabel: temExtras ? "Remuneração bruta" : "Salário bruto",
     items: [
       { label: `Faltas (${r.faltas} dia${r.faltas > 1 ? "s" : ""}) e DSR`, value: r.totalFaltas, color: COLORS.out },
@@ -1635,7 +1649,10 @@ function renderHome(inp) {
   $("homeLiquido").textContent = brl(m.liquido);
   $("homeInfo").textContent = `Salário bruto de ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"}${exemplo ? " · valores de exemplo" : ""}`;
   $("homeCta").textContent = exemplo ? "Colocar o meu salário" : "Ver detalhes";
-  if (m.beneficioVR) $("homeInfo").insertAdjacentHTML("beforeend", `<span class="hc-vr">Com VR/VA de ${brl(m.beneficioVR)}: <b>${brl(R2(m.liquido + m.beneficioVR))}</b> no mês</span>`);
+  $("homeVr").hidden = !m.beneficioVR;
+  if (m.beneficioVR) $("homeVr").innerHTML =
+    `<span class="vr-part"><small>+ VR/VA no cartão</small><b>${brl(m.beneficioVR)}</b></span>` +
+    `<span class="vr-part"><small>Total no mês</small><b>${brl(R2(m.liquido + m.beneficioVR))}</b></span>`;
   const extrasMes = R2(m.prov - inp.bruto);
   const lado = [["Salário base", inp.bruto]];
   if (extrasMes > 0) lado.push(["Extras e adicionais", extrasMes]);
