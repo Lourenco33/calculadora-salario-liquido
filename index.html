@@ -319,6 +319,80 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 .tile em.txt { font-family: var(--font-body); font-weight: 700; font-size: .86rem; letter-spacing: 0; }
 @media (max-width: 640px) { .tile { padding: 14px; } .hero-card { padding: 20px; } }
 
+/* Destaque "Seu holerite está certo?" no início */
+.check-banner {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer; font: inherit;
+  padding: 16px 18px; border-radius: 18px; border: 1.5px dashed var(--accent); background: var(--card); color: var(--ink);
+  box-shadow: var(--shadow); transition: transform .15s ease;
+}
+.check-banner:hover { transform: translateY(-2px); }
+.check-banner:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.check-banner .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; }
+.check-banner .ic svg { width: 24px; height: 24px; }
+.cb-txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.cb-txt b { font-family: var(--font-display); font-weight: 700; font-size: 1.08rem; }
+.cb-txt small { color: var(--muted); font-size: .88rem; line-height: 1.35; }
+.cb-go { flex: none; font-weight: 700; font-size: .9rem; padding: 9px 14px; border-radius: 10px; background: var(--accent); color: var(--on-accent); }
+.cb-go::after { content: " →"; }
+@media (max-width: 520px) { .cb-go { display: none; } .check-banner { padding: 14px; } }
+
+/* Tela Conferir holerite */
+.upload { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 520px) { .upload { grid-template-columns: 1fr; } }
+.up-btn {
+  display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; cursor: pointer;
+  background: var(--accent-soft); border: 1.5px solid transparent; transition: border-color .15s;
+}
+.up-btn:hover { border-color: var(--accent); }
+.up-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.up-btn .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; flex: none; }
+.up-btn .ic svg { width: 22px; height: 22px; }
+.up-txt { display: grid; gap: 1px; min-width: 0; }
+.up-txt b { font-weight: 700; font-size: .95rem; }
+.up-txt small { color: var(--muted); font-size: .8rem; line-height: 1.3; }
+.cf-status { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--field); font-size: .9rem; font-weight: 600; display: grid; gap: 8px; }
+.cf-status.ok { background: var(--accent-soft); color: var(--ink); }
+.cf-status.erro { background: var(--warn-soft); color: var(--ink); }
+.cf-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.cf-bar i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.cf-privacy { margin: 10px 0 0; font-size: .8rem; color: var(--muted); }
+.cf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-areas: "up res" "campos res"; gap: 22px; align-items: start; }
+.cf-up { grid-area: up; }
+.cf-fields { grid-area: campos; }
+.cf-result { grid-area: res; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+@media (max-width: 1000px) {
+  .cf-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "up" "res" "campos"; }
+  .cf-result { position: static; }
+}
+.cf-fields-intro { margin: -8px 0 18px; }
+.cf-form { gap: 18px; }
+.cf-group { margin: 6px 0 -4px; font-family: var(--font-display); font-size: 1rem; padding-top: 14px; border-top: 1px solid var(--line); }
+.cf-group:first-child { border-top: 0; padding-top: 0; }
+.cf-badge { display: none; margin-left: 6px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); background: var(--accent-soft); padding: 1px 6px; border-radius: 5px; vertical-align: 1px; }
+.cf-badge.on { display: inline-block; }
+.cf-result { display: grid; gap: 18px; }
+.cf-sum { display: flex; gap: 14px; align-items: center; padding: 18px; border-radius: 16px; }
+.cf-sum .ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; font-size: 1.5rem; font-weight: 800; }
+.cf-sum b { display: block; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.2; }
+.cf-sum small { color: var(--muted); font-size: .9rem; }
+.cf-sum.ok { background: var(--accent-soft); }
+.cf-sum.ok .ic { background: var(--accent); color: var(--on-accent); }
+.cf-sum.alerta { background: var(--warn-soft); }
+.cf-sum.alerta .ic { background: var(--minus); color: #fff; }
+.cf-sum.vazio { background: var(--field); }
+.cf-sum.vazio .ic { background: var(--line); color: var(--muted); }
+.cf-items { display: grid; gap: 10px; }
+.cf-item { display: grid; gap: 6px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); }
+.cf-item.bad { border-left-color: var(--minus); }
+.cf-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.cf-item-head b { font-weight: 700; }
+.cf-tag { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.cf-item.bad .cf-tag { background: var(--warn-soft); color: var(--minus); }
+.cf-vals { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .88rem; color: var(--muted); }
+.cf-vals strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.cf-item p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
+.cf-note { margin: 0; font-size: .8rem; color: var(--muted); }
+
 /* Calculadora */
 .calc { display: grid; gap: 22px; }
 .topbar { display: grid; justify-items: start; gap: 18px; padding-top: 4px; }
@@ -445,6 +519,12 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
       <span class="hc-cta" id="homeCta">Ver detalhes</span>
     </span>
     <span class="hc-side" id="homeSide"></span>
+  </button>
+
+  <button type="button" class="check-banner" data-go="conferir">
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 14 2 2 4-4"/></svg></span>
+    <span class="cb-txt"><b>Seu holerite está certo?</b><small>Envie o PDF ou uma foto e confira INSS, Imposto de Renda e vale-transporte.</small></span>
+    <span class="cb-go">Conferir</span>
   </button>
 
   <h2 class="section-title">O que você quer calcular?</h2>
@@ -802,6 +882,80 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
   </div>
 
+  <div id="conferView" class="calc" hidden>
+    <div class="topbar">
+      <button type="button" class="btn back" id="backBtn2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Início
+      </button>
+      <div class="tb-title"><span class="eyebrow">CLT · tabelas de 2026</span><h1>Conferir holerite</h1></div>
+    </div>
+
+    <div class="cf-grid">
+      <section class="card cf-up">
+        <div class="card-head">
+          <h2 class="card-title">Seu holerite</h2>
+          <button type="button" class="linkbtn" id="cfClear">Limpar</button>
+        </div>
+
+        <div class="upload">
+          <label class="up-btn" for="cfFile">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg></span>
+            <span class="up-txt"><b>Enviar PDF ou imagem</b><small>Do app de RH, e-mail ou galeria</small></span>
+          </label>
+          <input id="cfFile" type="file" accept="application/pdf,image/*" hidden>
+          <label class="up-btn" for="cfCam">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+            <span class="up-txt"><b>Tirar foto</b><small>Holerite em papel, reto e com boa luz</small></span>
+          </label>
+          <input id="cfCam" type="file" accept="image/*" capture="environment" hidden>
+        </div>
+        <div class="cf-status" id="cfStatus" hidden></div>
+        <p class="cf-privacy">O arquivo é lido aqui no seu aparelho e não é enviado para nenhum lugar. Se preferir, digite os valores em "Valores do holerite".</p>
+      </section>
+
+      <section class="card cf-fields">
+        <div class="card-head"><h2 class="card-title">Valores do holerite</h2></div>
+        <p class="hint cf-fields-intro">Os valores lidos aparecem aqui marcados como <span class="cf-badge on">lido</span>. Confira com o holerite e corrija o que precisar.</p>
+        <form id="cfForm" class="cf-form" autocomplete="off">
+          <h3 class="cf-group">Proventos</h3>
+          <div class="row2">
+            <div class="field"><label for="cfBase">Salário base <span class="cf-badge" data-b="base">lido</span></label><div class="money"><span>R$</span><input id="cfBase" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+            <div class="field"><label for="cfExtras">Extras e adicionais <span class="cf-badge" data-b="extras">lido</span></label><div class="money"><span>R$</span><input id="cfExtras" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+          </div>
+          <div class="field"><label for="cfProv">Total de proventos (bruto) <span class="cf-badge" data-b="prov">lido</span></label><div class="money"><span>R$</span><input id="cfProv" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+
+          <h3 class="cf-group">Descontos</h3>
+          <div class="row2">
+            <div class="field"><label for="cfInss">INSS <span class="cf-badge" data-b="inss">lido</span></label><div class="money"><span>R$</span><input id="cfInss" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+            <div class="field"><label for="cfIrrf">Imposto de Renda <span class="cf-badge" data-b="irrf">lido</span></label><div class="money"><span>R$</span><input id="cfIrrf" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="cfVt">Vale-transporte <span class="cf-badge" data-b="vt">lido</span></label><div class="money"><span>R$</span><input id="cfVt" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+            <div class="field"><label for="cfDesc">Total de descontos <span class="cf-badge" data-b="desc">lido</span></label><div class="money"><span>R$</span><input id="cfDesc" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+          </div>
+
+          <h3 class="cf-group">Resultado</h3>
+          <div class="field"><label for="cfLiq">Líquido a receber <span class="cf-badge" data-b="liq">lido</span></label><div class="money"><span>R$</span><input id="cfLiq" type="text" inputmode="decimal" placeholder="0,00"></div></div>
+          <div class="inline">
+            <div class="txt"><strong>Dependentes no IR</strong><span class="hint">Os que você informou para a empresa.</span></div>
+            <div class="stepper">
+              <button type="button" data-step="-1" data-target="cfDep" aria-label="Remover dependente">−</button>
+              <input id="cfDep" type="number" min="0" max="20" value="0" aria-label="Dependentes no IR">
+              <button type="button" data-step="1" data-target="cfDep" aria-label="Adicionar dependente">+</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="card cf-result" aria-live="polite">
+        <div id="cfSummary"></div>
+        <div class="cf-items" id="cfItems"></div>
+        <p class="cf-note">A conferência usa as tabelas de INSS e IR de 2026 sobre o total de proventos. Diferenças podem ter explicação: pensão alimentícia, faltas, valores de meses anteriores ou itens que não pagam INSS. Na dúvida, pergunte ao RH com este resultado em mãos.</p>
+      </section>
+    </div>
+  </div>
+
   <div class="modal" id="confirmModal" hidden role="alertdialog" aria-modal="true" aria-labelledby="cmTitle" aria-describedby="cmText">
     <div class="modal-box">
       <div class="modal-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
@@ -1113,6 +1267,92 @@ function calcAno(args) {
   return { m, d, f, bruto, inss, ir, outros, liquido, fgts, beneficios,
     mediaMensal: R2(liquido / 12), comFgts: R2((liquido + fgts + beneficios) / 12) };
 }
+/* Conferir holerite: tira os valores do texto do holerite (PDF ou foto) procurando palavras-chave.
+   Cada empresa usa um modelo, mas quase todos têm linhas como "INSS ... 317,00" e "LÍQUIDO ... 3.055,00".
+   Em cada linha, o valor que interessa é o último número (antes dele costuma vir a referência: horas, dias ou %). */
+const RX_VALOR = /\d{1,3}(?:[.\s]\d{3})+[.,]\d{2}(?!\d)|\d+[.,]\d{2}(?!\d)/g;
+const valoresDaLinha = (l) => (l.match(RX_VALOR) || []).map((v) => Number(v.replace(/\D/g, "")) / 100);
+
+function extrairHolerite(linhas) {
+  const r = { base: 0, extras: 0, prov: 0, inss: 0, irrf: 0, vt: 0, desc: 0, liq: 0 };
+  const achou = new Set();
+  // Valores menores que isso quase sempre são a coluna "Referência" (horas, dias, %) lida no lugar do valor
+  const MINIMO = { base: 100, inss: 50, irrf: 1, vt: 5, extras: 1 };
+  const somar = (k, v) => { if (v < (MINIMO[k] || 0)) return; r[k] = R2(r[k] + v); achou.add(k); };
+  const definir = (k, v) => { r[k] = v; achou.add(k); };
+  let pendentes = [];
+  for (const bruta of linhas) {
+    const l = String(bruta).toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const nums = valoresDaLinha(l);
+    const temLetras = /[A-Z]{3,}/.test(l.replace(/R\$/g, ""));
+    if (!nums.length) {
+      // Cabeçalho sem números: os valores costumam vir na linha de baixo
+      const p = [];
+      if (/TOTAL/.test(l) && /VENC|PROV/.test(l)) p.push("prov");
+      if (/TOTAL/.test(l) && /DESC/.test(l)) p.push("desc");
+      if (/LIQUIDO/.test(l)) p.push("liq");
+      if (p.length) pendentes = p;
+      continue;
+    }
+    if (!temLetras && pendentes.length) {
+      const ini = Math.max(0, nums.length - pendentes.length);
+      pendentes.forEach((k, i) => { if (nums[ini + i] != null) definir(k, nums[ini + i]); });
+      pendentes = [];
+      continue;
+    }
+    if (temLetras) pendentes = [];
+    const ultimo = nums[nums.length - 1];
+    if (/TOTAL/.test(l)) {
+      const temProv = /VENC|PROV/.test(l), temDesc = /DESC/.test(l);
+      if (temProv && temDesc && nums.length >= 2) { definir("prov", nums[nums.length - 2]); definir("desc", ultimo); }
+      else if (temProv) definir("prov", ultimo);
+      else if (temDesc) definir("desc", ultimo);
+      continue;
+    }
+    if (/LIQUIDO/.test(l)) { definir("liq", ultimo); continue; }
+    if (/BASE|CONTR|F\.?\s?G\.?\s?T\.?\s?S|FAIXA|DEDU/.test(l)) continue; // rodapé com bases de cálculo
+    if (/\bI\.?\s?N\.?\s?S\.?\s?S\b/.test(l)) { somar("inss", ultimo); continue; }
+    if (/I\.?\s?R\.?\s?R\.?\s?F|IMPOSTO\s+DE\s+RENDA|IMP\.?\s*RENDA/.test(l)) { somar("irrf", ultimo); continue; }
+    if (/TRANSP|\bV\.?\s?T\b/.test(l)) { somar("vt", ultimo); continue; }
+    if (/EXTRA|\bH\.?\s?E\b|D\.?\s?S\.?\s?R\b|REPOUSO|NOTURNO|INSALUBR|PERICUL|COMISS|GRATIFIC|PREMIO|BONUS/.test(l)) { somar("extras", ultimo); continue; }
+    if (/SALARIO|ORDENADO|HORAS\s+NORMAIS|DIAS\s+NORMAIS|DIAS\s+TRABALHADOS/.test(l) && !/FAMILIA|MATERN/.test(l)) { somar("base", ultimo); continue; }
+  }
+  if (!achou.has("prov") && (r.base || r.extras)) r.prov = R2(r.base + r.extras);
+  if (!achou.has("desc") && (r.inss || r.irrf || r.vt)) r.desc = R2(r.inss + r.irrf + r.vt);
+
+  // Confere os números entre si para corrigir trocas comuns da leitura de foto (5↔9, 3↔8, 1↔7):
+  // se um total não bate, mas a soma das partes bate exatamente, vale a soma
+  const perto = (a, b) => Math.abs(a - b) <= 0.05;
+  const somaProv = R2(r.base + r.extras), somaDesc = R2(r.inss + r.irrf + r.vt);
+  if (r.liq && !perto(r.prov - r.desc, r.liq)) {
+    if (perto(r.prov - somaDesc, r.liq)) r.desc = somaDesc;
+    else if (perto(somaProv - r.desc, r.liq)) r.prov = somaProv;
+    else if (perto(somaProv - somaDesc, r.liq)) { r.prov = somaProv; r.desc = somaDesc; }
+    else if (somaProv && somaDesc && perto(r.prov, somaProv) && perto(r.desc, somaDesc)) r.liq = R2(r.prov - r.desc);
+  }
+  return { ...r, achou: [...achou] };
+}
+
+// Compara o holerite com o cálculo pelas tabelas de 2026
+function conferirHolerite({ base = 0, extras = 0, prov = 0, inss = 0, irrf = 0, vt = 0, desc = 0, liq = 0, dependentes = 0 }) {
+  const bruto = prov > 0 ? prov : R2(base + extras);
+  const itens = [];
+  if (bruto <= 0) return { bruto, itens, divergentes: 0 };
+  const inssEsperado = calcINSS(bruto).total;
+  itens.push({ chave: "inss", nome: "INSS", informado: inss, esperado: inssEsperado, ok: Math.abs(inss - inssEsperado) <= 1 });
+  const ir = calcIR(bruto, inss > 0 ? inss : inssEsperado, dependentes, 0, true);
+  itens.push({ chave: "irrf", nome: "Imposto de Renda", informado: irrf, esperado: ir.valor, ok: Math.abs(irrf - ir.valor) <= 1 });
+  if (vt > 0) {
+    const limite = R2((base > 0 ? base : bruto) * VT_MAX_PCT / 100);
+    itens.push({ chave: "vt", nome: "Vale-transporte", informado: vt, esperado: limite, limite: true, ok: vt <= limite + 0.5 });
+  }
+  if (liq > 0) {
+    const totalDesc = desc > 0 ? desc : R2(inss + irrf + vt);
+    const esperado = R2(bruto - totalDesc);
+    itens.push({ chave: "conta", nome: "Conta do líquido", informado: liq, esperado, ok: Math.abs(liq - esperado) <= 0.05 });
+  }
+  return { bruto, itens, divergentes: itens.filter((i) => !i.ok).length };
+}
 /* ===== CALC END ===== */
 
 const $ = (id) => document.getElementById(id);
@@ -1131,8 +1371,8 @@ const parseNum = (v) => { const n = parseFloat(String(v).replace(",", ".")); ret
 const clampInt = (v, lo, hi, def) => { const n = parseInt(v, 10); return isNaN(n) ? def : Math.max(lo, Math.min(hi, n)); };
 
 const moneyIds = ["bruto", "extras", "pensao", "vtCusto", "saude", "outros", "saldoFgts", "vrValor"];
-const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano"];
-const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano" };
+const MODES = ["mensal", "decimo-terceiro", "ferias", "rescisao", "ano", "conferir"];
+const MODE_NAMES = { mensal: "Salário do mês", "decimo-terceiro": "13º salário", ferias: "Férias", rescisao: "Rescisão", ano: "Resumo do ano", conferir: "Conferir holerite" };
 let mode = "mensal";
 
 function readPctDe(id, max, padrao) {
@@ -1615,10 +1855,16 @@ function render() {
   const inp = ler();
   document.querySelectorAll("[data-only]").forEach((el) => { el.hidden = !el.dataset.only.split(" ").includes(mode); });
   const naHome = mode === "inicio";
+  const naConferencia = mode === "conferir";
   $("homeView").hidden = !naHome;
-  $("calcView").hidden = naHome;
-  $("mbar").hidden = naHome;
+  $("calcView").hidden = naHome || naConferencia;
+  $("conferView").hidden = !naConferencia;
+  $("mbar").hidden = naHome || naConferencia;
   if (naHome) { renderHome(inp); salvar(); return; }
+  if (naConferencia) {
+    if (!cfDepTocado) $("cfDep").value = $("dep").value;
+    renderConferir(); salvar(); return;
+  }
   $("viewTitle").textContent = mode === "mensal" && inp.inverso ? "Quanto preciso ganhar?" : MODE_NAMES[mode];
   $("extrasIntro").textContent = mode === "mensal"
     ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
@@ -1706,10 +1952,276 @@ document.querySelectorAll("[data-go]").forEach((el) =>
     location.hash = el.dataset.go;
   })
 );
-$("backBtn").addEventListener("click", () => {
+const voltarInicio = () => {
   if (veioDoInicio) history.back();
   else location.hash = "inicio";
+};
+$("backBtn").addEventListener("click", voltarInicio);
+$("backBtn2").addEventListener("click", voltarInicio);
+
+/* ===== Conferir holerite ===== */
+const CF_CAMPOS = { base: "cfBase", extras: "cfExtras", prov: "cfProv", inss: "cfInss", irrf: "cfIrrf", vt: "cfVt", desc: "cfDesc", liq: "cfLiq" };
+
+function lerConferencia() {
+  const v = {};
+  Object.entries(CF_CAMPOS).forEach(([k, id]) => (v[k] = parseBRL($(id).value)));
+  v.dependentes = clampInt($("cfDep").value, 0, 20, 0);
+  return v;
+}
+
+const EXPLICA = {
+  inss: (i, c) => i.ok
+    ? `Confere com a tabela de 2026 para uma remuneração de ${brl(c.bruto)}.`
+    : i.informado > i.esperado
+      ? `Veio ${brl(R2(i.informado - i.esperado))} a mais do que a tabela indica. Pode ser cobrança errada, ou a empresa incluiu na base algo que não aparece aqui, como diferenças de meses anteriores. Vale perguntar ao RH.`
+      : `Veio ${brl(R2(i.esperado - i.informado))} a menos do que a tabela indica. Pode haver faltas ou algum valor que não paga INSS. Se o total de proventos estiver certo, pergunte ao RH.`,
+  irrf: (i) => i.ok
+    ? (i.esperado === 0 ? "Isento, como deve ser. Com a nova regra de 2026, quem ganha até R$ 5.000 não paga IR." : "Confere com a tabela do IR de 2026, já com a nova redução.")
+    : i.informado > i.esperado
+      ? `Veio ${brl(R2(i.informado - i.esperado))} a mais. Confira se a empresa tem seus dependentes cadastrados e se já aplicou a nova isenção de 2026 (Lei 15.270/2025).`
+      : `Veio ${brl(R2(i.esperado - i.informado))} a menos. A empresa pode estar considerando dependentes ou pensão alimentícia que não foram informados aqui.`,
+  vt: (i) => i.ok
+    ? `Dentro do limite de 6% do salário base (até ${brl(i.esperado)}).`
+    : `Passou do limite de 6% do salário base, que é ${brl(i.esperado)}. A empresa só pode descontar até esse valor, ou o custo real das passagens se for menor.`,
+  conta: (i) => i.ok
+    ? "Proventos menos descontos bate certinho com o líquido."
+    : `Proventos menos descontos dá ${brl(i.esperado)}, mas o líquido é ${brl(i.informado)}. Pode ter algum valor que não foi lido. Confira os totais.`,
+};
+
+function renderConferir() {
+  const v = lerConferencia();
+  const c = conferirHolerite(v);
+  if (!c.itens.length) {
+    $("cfSummary").innerHTML = `<div class="cf-sum vazio"><span class="ic">?</span><div><b>Envie seu holerite</b><small>Mande o PDF ou uma foto, ou digite pelo menos o total de proventos e os descontos.</small></div></div>`;
+    $("cfItems").innerHTML = "";
+    return;
+  }
+  $("cfSummary").innerHTML = c.divergentes
+    ? `<div class="cf-sum alerta"><span class="ic">!</span><div><b>${c.divergentes === 1 ? "1 ponto para conferir" : `${c.divergentes} pontos para conferir`}</b><small>${c.itens.length - c.divergentes} de ${c.itens.length} itens conferem com o cálculo.</small></div></div>`
+    : `<div class="cf-sum ok"><span class="ic">✓</span><div><b>Tudo certo no seu holerite</b><small>Os ${c.itens.length} itens conferidos batem com o cálculo.</small></div></div>`;
+  $("cfItems").innerHTML = c.itens.map((i) => `
+    <div class="cf-item ${i.ok ? "" : "bad"}">
+      <div class="cf-item-head"><b>${i.nome}</b><span class="cf-tag">${i.ok ? "Confere" : "Diferente"}</span></div>
+      <div class="cf-vals"><span>No holerite: <strong>${brl(i.informado)}</strong></span><span>${i.limite ? "Limite" : "Esperado"}: <strong>${brl(i.esperado)}</strong></span></div>
+      <p>${EXPLICA[i.chave](i, c)}</p>
+    </div>`).join("");
+}
+
+function marcarLidos(achou) {
+  document.querySelectorAll(".cf-badge").forEach((b) => b.classList.toggle("on", achou.includes(b.dataset.b)));
+}
+
+function statusConferencia(html, tipo, pct) {
+  const s = $("cfStatus");
+  s.hidden = false;
+  s.className = "cf-status" + (tipo ? " " + tipo : "");
+  s.innerHTML = `<span>${html}</span>` + (pct != null ? `<span class="cf-bar"><i style="width:${Math.round(pct * 100)}%"></i></span>` : "");
+}
+
+const scriptsCarregados = {};
+function carregarScript(src) {
+  if (!scriptsCarregados[src]) {
+    scriptsCarregados[src] = new Promise((ok, erro) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = ok;
+      s.onerror = () => { delete scriptsCarregados[src]; erro(new Error("Não foi possível baixar o leitor. Verifique a internet.")); };
+      document.head.append(s);
+    });
+  }
+  return scriptsCarregados[src];
+}
+
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const TESSERACT = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+
+// PDF: junta os pedaços de texto em linhas pela altura na página
+async function linhasDoPdf(arquivo) {
+  await carregarScript(PDFJS);
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+  const pdf = await window.pdfjsLib.getDocument({ data: await arquivo.arrayBuffer() }).promise;
+  const linhas = [];
+  for (let p = 1; p <= Math.min(pdf.numPages, 2); p++) {
+    const pagina = await pdf.getPage(p);
+    const conteudo = await pagina.getTextContent();
+    const grupos = [];
+    conteudo.items.filter((it) => it.str.trim()).forEach((it) => {
+      const y = it.transform[5], x = it.transform[4];
+      let g = grupos.find((gr) => Math.abs(gr.y - y) < 3);
+      if (!g) { g = { y, itens: [] }; grupos.push(g); }
+      g.itens.push({ x, s: it.str });
+    });
+    grupos.sort((a, b) => b.y - a.y).forEach((g) => linhas.push(g.itens.sort((a, b) => a.x - b.x).map((i) => i.s).join(" ")));
+    if (!grupos.length) linhas.push(...(await linhasDaImagem(await paginaParaImagem(pagina))));
+  }
+  return linhas;
+}
+
+async function paginaParaImagem(pagina) {
+  const vp = pagina.getViewport({ scale: 2 });
+  const canvas = document.createElement("canvas");
+  canvas.width = vp.width; canvas.height = vp.height;
+  await pagina.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+  return canvas;
+}
+
+// Foto: ajusta o tamanho, passa para preto e branco e apaga as linhas da tabela,
+// que confundem o reconhecimento de texto (as bordas viram "letras")
+// Descobre a inclinação da foto: testa ângulos e fica com o que deixa as linhas de texto mais "retas"
+// (quando o texto está reto, os pixels escuros se concentram em poucas faixas horizontais)
+function anguloDaFoto(img) {
+  const w = 700, h = Math.round(img.height * (w / img.width));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(img, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data;
+  let soma = 0;
+  for (let i = 0; i < w * h; i++) soma += d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114;
+  const limite = (soma / (w * h)) * 0.75;
+  const pts = [];
+  for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) {
+    const i = (yy * w + xx) * 4;
+    if (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114 < limite) pts.push(xx - w / 2, yy - h / 2);
+  }
+  let melhor = 0, melhorPonto = -1;
+  for (let a = -8; a <= 8.001; a += 0.25) {
+    const r = (a * Math.PI) / 180, sn = Math.sin(r), cs = Math.cos(r);
+    const hist = new Float64Array(h * 2);
+    for (let k = 0; k < pts.length; k += 2) {
+      const yr = Math.round(pts[k + 1] * cs - pts[k] * sn + h);
+      if (yr >= 0 && yr < hist.length) hist[yr]++;
+    }
+    let pontos = 0;
+    for (let k = 0; k < hist.length; k++) pontos += hist[k] * hist[k];
+    if (pontos > melhorPonto) { melhorPonto = pontos; melhor = a; }
+  }
+  return melhor;
+}
+
+async function prepararImagem(arquivo) {
+  const img = arquivo instanceof HTMLCanvasElement ? arquivo : await createImageBitmap(arquivo);
+  const escala = Math.max(0.5, Math.min(2.5, 2400 / Math.max(img.width, img.height)));
+  const W = Math.round(img.width * escala), H = Math.round(img.height * escala);
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingQuality = "high";
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, W, H);
+  const angulo = anguloDaFoto(img);
+  ctx.translate(W / 2, H / 2);
+  ctx.rotate((-angulo * Math.PI) / 180); // gira no sentido contrário para endireitar
+  ctx.drawImage(img, -W / 2, -H / 2, W, H);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const dados = ctx.getImageData(0, 0, W, H);
+  const px = dados.data;
+
+  // Preto e branco com limite pela média de cada bloco (aguenta foto com luz desigual)
+  const lum = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) lum[i] = px[i * 4] * 0.299 + px[i * 4 + 1] * 0.587 + px[i * 4 + 2] * 0.114;
+  const B = 48, escuro = new Uint8Array(W * H);
+  for (let by = 0; by < H; by += B) for (let bx = 0; bx < W; bx += B) {
+    let soma = 0, n = 0;
+    for (let y = by; y < Math.min(H, by + B); y++) for (let x = bx; x < Math.min(W, bx + B); x++) { soma += lum[y * W + x]; n++; }
+    const limite = Math.min(170, (soma / n) * 0.82);
+    for (let y = by; y < Math.min(H, by + B); y++) for (let x = bx; x < Math.min(W, bx + B); x++) escuro[y * W + x] = lum[y * W + x] < limite ? 1 : 0;
+  }
+
+  // Apaga traços longos na horizontal e na vertical (bordas da tabela); letras não têm traços tão compridos.
+  // Aceita pequenas falhas no traço (foto borrada) e apaga também 2 px em volta dele.
+  const longo = Math.round(Math.max(W, H) * 0.045), falha = 4, borda = 2;
+  const apagar = new Uint8Array(W * H);
+  const varrer = (n, m, idx, marcar) => {
+    for (let a = 0; a < n; a++) {
+      let ini = -1, ultimo = -1;
+      for (let b = 0; b <= m; b++) {
+        const e = b < m && escuro[idx(a, b)];
+        if (e) { if (ini < 0) ini = b; ultimo = b; }
+        else if (ini >= 0 && b - ultimo > falha) {
+          if (ultimo - ini + 1 >= longo) marcar(a, ini, ultimo);
+          ini = -1;
+        }
+      }
+    }
+  };
+  varrer(H, W, (y, x) => y * W + x, (y, x0, x1) => {
+    for (let dy = -borda; dy <= borda; dy++) { const yy = y + dy; if (yy < 0 || yy >= H) continue; for (let k = x0; k <= x1; k++) apagar[yy * W + k] = 1; }
+  });
+  varrer(W, H, (x, y) => y * W + x, (x, y0, y1) => {
+    for (let dx = -borda; dx <= borda; dx++) { const xx = x + dx; if (xx < 0 || xx >= W) continue; for (let k = y0; k <= y1; k++) apagar[k * W + xx] = 1; }
+  });
+  for (let i = 0; i < W * H; i++) {
+    const v = escuro[i] && !apagar[i] ? 0 : 255;
+    px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = v; px[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(dados, 0, 0);
+  return canvas;
+}
+
+let leitorFoto = null;
+async function linhasDaImagem(imagem) {
+  statusConferencia("Preparando o leitor de fotos. Na primeira vez ele baixa cerca de 10 MB.", "", 0.05);
+  await carregarScript(TESSERACT);
+  if (!leitorFoto) {
+    leitorFoto = window.Tesseract.createWorker("por", 1, {
+      logger: (m) => { if (m.status === "recognizing text") statusConferencia("Lendo a foto…", "", 0.1 + m.progress * 0.9); },
+    }).then(async (w) => {
+      // Lê como um bloco de linhas, mantendo os espaços entre as colunas
+      await w.setParameters({ tessedit_pageseg_mode: "6", preserve_interword_spaces: "1" });
+      return w;
+    }).catch((e) => { leitorFoto = null; throw e; });
+  }
+  const { data } = await (await leitorFoto).recognize(imagem);
+  return data.text.split("\n");
+}
+
+async function lerArquivo(arquivo) {
+  if (!arquivo) return;
+  try {
+    let linhas;
+    if (arquivo.type === "application/pdf" || /\.pdf$/i.test(arquivo.name)) {
+      statusConferencia("Lendo o PDF…", "", 0.3);
+      linhas = await linhasDoPdf(arquivo);
+    } else {
+      linhas = await linhasDaImagem(await prepararImagem(arquivo));
+    }
+    const r = extrairHolerite(linhas);
+    Object.entries(CF_CAMPOS).forEach(([k, id]) => { $(id).value = r[k] ? num(r[k]) : ""; });
+    $("cfDep").value = $("dep").value;
+    marcarLidos(r.achou);
+    const n = r.achou.length;
+    if (n >= 3) statusConferencia(`Pronto! Encontramos ${n} valores. Confira se estão iguais ao holerite e corrija o que precisar.`, "ok");
+    else if (n) statusConferencia(`Encontramos só ${n} valor${n > 1 ? "es" : ""}. Complete os campos que faltam olhando o holerite.`, "erro");
+    else statusConferencia("Não conseguimos ler os valores. Tente uma foto mais nítida, reta e com boa luz, ou digite os valores em \"Valores do holerite\".", "erro");
+    renderConferir();
+    // No celular, leva até o resultado logo depois da leitura
+    if (n && window.matchMedia("(max-width: 1000px)").matches) {
+      $("cfSummary").scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+  } catch (e) {
+    statusConferencia((e && e.message) || "Não foi possível ler o arquivo. Tente de novo ou digite os valores.", "erro");
+  }
+}
+
+["cfFile", "cfCam"].forEach((id) => $(id).addEventListener("change", (e) => { lerArquivo(e.target.files[0]); e.target.value = ""; }));
+$("cfForm").addEventListener("input", (e) => {
+  const b = e.target.closest(".field")?.querySelector(".cf-badge");
+  if (b) b.classList.remove("on");
+  renderConferir();
 });
+$("cfForm").addEventListener("submit", (e) => e.preventDefault());
+Object.values(CF_CAMPOS).forEach((id) => $(id).addEventListener("blur", () => { const v = parseBRL($(id).value); $(id).value = v ? num(v) : ""; }));
+$("cfClear").addEventListener("click", () => {
+  Object.values(CF_CAMPOS).forEach((id) => ($(id).value = ""));
+  marcarLidos([]);
+  $("cfStatus").hidden = true;
+  renderConferir();
+});
+// Dependentes da conferência começam iguais aos de "Seus dados", até a pessoa mexer neles
+let cfDepTocado = false;
+$("cfDep").addEventListener("input", () => (cfDepTocado = true));
 
 /* Tema: automático → claro → escuro */
 const THEMES = [
@@ -1936,7 +2448,8 @@ document.querySelectorAll("[data-step]").forEach((b) =>
   b.addEventListener("click", () => {
     const el = $(b.dataset.target);
     el.value = clampInt((parseInt(el.value, 10) || 0) + Number(b.dataset.step), Number(el.min), Number(el.max), Number(el.min));
-    exemplo = false;
+    if (b.dataset.target === "cfDep") cfDepTocado = true;
+    else exemplo = false;
     render();
   })
 );
