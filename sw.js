@@ -1,6 +1,6 @@
 // Service worker: deixa o app abrir sem internet.
 // A página é buscada na rede primeiro (para receber atualizações) e cai no cache se estiver offline.
-const CACHE = "salario-clt-v14";
+const CACHE = "salario-clt-v15";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"];
 
 self.addEventListener("install", (e) => {
@@ -20,8 +20,8 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // Fontes do Google e leitores de PDF/foto (baixados só quando usados): usa o cache e atualiza em segundo plano
-  const externos = ["fonts.googleapis.com", "fonts.gstatic.com", "cdnjs.cloudflare.com", "cdn.jsdelivr.net"];
+  // Fontes do Google: usa o cache e atualiza em segundo plano
+  const externos = ["fonts.googleapis.com", "fonts.gstatic.com"];
   if (externos.includes(url.hostname)) {
     e.respondWith(
       caches.open(CACHE).then(async (c) => {
