@@ -94,6 +94,8 @@ input[type="text"], input[type="number"] {
 input[type="text"]:hover, input[type="number"]:hover { border-color: var(--line); }
 input[type="text"]:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); background: var(--card); }
 .money input { padding-left: 44px; }
+.money.suffix span { left: auto; right: 14px; }
+.money.suffix input { padding-left: 14px; padding-right: 40px; }
 .big .money span { font-size: 1.1rem; left: 16px; }
 .big input { font: 700 1.7rem var(--font-display); padding: 14px 16px 14px 54px; letter-spacing: -.01em; }
 button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -261,14 +263,19 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
         <div data-only="mensal" style="display:grid;gap:14px">
           <div class="inline">
-            <div class="txt"><strong>Vale-transporte</strong><span class="hint">Desconta até 6% do salário.</span></div>
+            <div class="txt"><strong>Vale-transporte</strong><span class="hint">Desconta uma parte do salário, até 6%.</span></div>
             <label class="switch"><input id="vt" type="checkbox" checked aria-label="Usa vale-transporte"><i></i></label>
           </div>
           <div class="sub" id="vtCostField">
             <div class="field">
+              <label for="vtPct">Porcentagem descontada do salário</label>
+              <div class="money suffix"><input id="vtPct" type="text" inputmode="decimal" value="6"><span>%</span></div>
+              <span class="hint">A lei permite no máximo 6%. Algumas empresas descontam menos, ou nada.</span>
+            </div>
+            <div class="field">
               <label for="vtCusto">Quanto você gasta de passagem por mês</label>
               <div class="money"><span>R$</span><input id="vtCusto" type="text" inputmode="decimal" value="440,00"></div>
-              <span class="hint">Se for menos que 6% do salário, o desconto é só esse valor.</span>
+              <span class="hint" id="vtCustoHint">Se for menos que a porcentagem do salário, o desconto é só esse valor.</span>
             </div>
           </div>
         </div>
@@ -433,11 +440,13 @@ function calcIR(rendimentos, inss, dependentes, pensao, permiteSimplificado) {
     bruto, redutor, valor: Math.max(0, R2(bruto - redutor)) };
 }
 
-function calcMensal({ bruto, extras = 0, dependentes = 0, pensao = 0, vt = false, vtCusto = 0, saude = 0, outros = 0 }) {
+const VT_MAX_PCT = 6;
+function calcMensal({ bruto, extras = 0, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0 }) {
   const rendimentos = R2(bruto + extras);
   const inss = calcINSS(rendimentos);
   const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
-  const descVT = vt ? R2(Math.min(bruto * 0.06, vtCusto > 0 ? vtCusto : bruto * 0.06)) : 0;
+  const tetoVT = bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
+  const descVT = vt ? R2(vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) : 0;
   const totalDesc = R2(inss.total + ir.valor + descVT + pensao + saude + outros);
   return { rendimentos, inss, ir, descVT, pensao, saude, outros, totalDesc,
     liquido: R2(rendimentos - totalDesc), fgts: R2(rendimentos * 0.08) };
@@ -501,7 +510,14 @@ function ler() {
     direito: Number(document.querySelector('input[name="direito"]:checked').value),
     vender: $("vender").checked,
     vt: $("vt").checked,
+    vtPct: readPct(),
   };
+}
+
+function readPct() {
+  const s = String($("vtPct").value).replace(",", ".").replace(/[^\d.]/g, "");
+  const n = parseFloat(s);
+  return isFinite(n) ? Math.max(0, Math.min(VT_MAX_PCT, n)) : VT_MAX_PCT;
 }
 
 const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
@@ -622,7 +638,7 @@ function renderMensal(inp) {
   $("rules").innerHTML = `
     <li>O salário é pago até o 5º dia útil do mês seguinte ao trabalhado.</li>
     <li>O FGTS (8% do bruto) é depositado pela empresa e não é descontado de você.</li>
-    <li>O vale-transporte desconta no máximo 6% do salário-base. Se as passagens custam menos, desconta só o custo delas.</li>`;
+    <li>O vale-transporte desconta no máximo 6% do salário-base, e a empresa pode descontar menos. Se as passagens custam menos que isso, desconta só o custo delas.</li>`;
 }
 
 function renderDecimo(inp) {
@@ -730,6 +746,7 @@ function modeFromHash() {
 $("form").addEventListener("input", render);
 $("form").addEventListener("change", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
+$("vtPct").addEventListener("blur", () => { $("vtPct").value = readPct().toLocaleString("pt-BR", { maximumFractionDigits: 2 }); render(); });
 moneyIds.forEach((id) => {
   $(id).addEventListener("blur", () => { $(id).value = num(parseBRL($(id).value)); });
   $(id).addEventListener("focus", () => { if (parseBRL($(id).value) === 0) $(id).select(); });
