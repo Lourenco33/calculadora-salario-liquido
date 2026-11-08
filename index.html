@@ -104,7 +104,7 @@ header p { margin: 0; color: var(--muted); max-width: 58ch; }
 }
 
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
-@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1000px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 .card { background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 24px; min-width: 0; }
 .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; }
@@ -178,7 +178,8 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 
 /* Resultado */
 .result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 22px; }
-@media (max-width: 880px) { .result { position: static; } }
+.result.solto { position: static; } /* quando o resultado é mais alto que a tela, ele rola junto com a página */
+@media (max-width: 1000px) { .result { position: static; } body { padding-bottom: 110px; } }
 .total-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .total { display: grid; gap: 4px; min-width: 0; }
 .total .lbl { font-size: .95rem; color: var(--muted); font-weight: 600; }
@@ -197,7 +198,8 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
   .chips .chip:last-child:nth-child(odd) { grid-column: span 2; }
 }
 
-.split { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 22px; align-items: center; }
+.split { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 22px; align-items: start; }
+.split .donut { margin-top: 6px; }
 @media (max-width: 440px) { .split { grid-template-columns: minmax(0, 1fr); justify-items: center; } .split .list { width: 100%; } }
 .donut { width: 136px; height: 136px; }
 .donut circle { fill: none; stroke-width: 16; transition: stroke-dasharray .4s ease, stroke-dashoffset .4s ease; }
@@ -223,9 +225,9 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .li.after { padding-top: 10px; }
 .li.after span { font-weight: 700; }
 .li.after b { color: var(--accent); font-size: 1.05rem; }
-.li.total { margin-top: 8px; padding: 14px 16px; border-radius: 14px; background: var(--accent); color: var(--on-accent); grid-template-columns: 0 minmax(0, 1fr) auto; }
+.li.total { margin-top: 8px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); border: 1.5px solid var(--accent); grid-template-columns: 0 minmax(0, 1fr) auto; }
 .li.total span { font-weight: 800; }
-.li.total b { color: var(--on-accent); font-size: 1.15rem; font-weight: 700; }
+.li.total b { color: var(--accent); font-size: 1.12rem; font-weight: 700; }
 .chip.strong { background: var(--accent); color: var(--on-accent); }
 .chip.strong small { color: var(--on-accent); opacity: .85; }
 .fgts { font-size: .9rem; color: var(--muted); padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
@@ -351,11 +353,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   box-shadow: 0 10px 30px rgba(0, 0, 0, .25); font-weight: 600; font-size: .92rem; animation: pop .18s ease;
 }
 .toast button { border: 0; border-radius: 10px; padding: 8px 12px; background: transparent; color: var(--accent-soft); font: 700 .92rem var(--font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 880px) { .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 1000px) { .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
 
 /* Barra fixa no celular com o valor líquido */
 .mbar { display: none; }
-@media (max-width: 880px) {
+@media (max-width: 1000px) {
   .mbar {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
@@ -1637,6 +1639,7 @@ function render() {
   $("descCount").textContent = descFilled ? `${descFilled} preenchido${descFilled > 1 ? "s" : ""}` : "opcional";
 
   ({ "decimo-terceiro": renderDecimo, ferias: renderFerias, rescisao: renderRescisao, ano: renderAno }[mode] || renderMensal)(inp);
+  requestAnimationFrame(ajustarFixo);
 
   salvar();
   $("printTitle").textContent = `${MODE_NAMES[mode]} · estimativa CLT 2026`;
@@ -1654,13 +1657,15 @@ function renderHome(inp) {
   if (m.beneficioVR) $("homeVr").innerHTML =
     `<span class="vr-part"><small>+ VR/VA no cartão</small><b>${brl(m.beneficioVR)}</b></span>` +
     `<span class="vr-part"><small>Total no mês</small><b>${brl(R2(m.liquido + m.beneficioVR))}</b></span>`;
+  // Quadro lateral (só no computador): o caminho do bruto ao líquido, sem repetir o VR/VA que já tem destaque
   const extrasMes = R2(m.prov - inp.bruto);
   const lado = [["Salário base", inp.bruto]];
   if (extrasMes > 0) lado.push(["Extras e adicionais", extrasMes]);
-  lado.push(["Descontos", m.totalDesc]);
-  if (m.beneficioVR) lado.push(["VR/VA no cartão", m.beneficioVR], ["Total com VR/VA", R2(m.liquido + m.beneficioVR)]);
-  else lado.push(["FGTS depositado", m.fgts]);
-  $("homeSide").innerHTML = lado.map(([t, v]) => `<span class="hs-row"><small>${t}</small><b>${brl(v)}</b></span>`).join("");
+  lado.push(["INSS", m.inss.total], ["Imposto de Renda", m.ir.valor]);
+  const outrosDesc = R2(m.totalDesc - m.inss.total - m.ir.valor);
+  if (outrosDesc > 0) lado.push(["Outros descontos", outrosDesc]);
+  lado.push(["FGTS depositado", m.fgts]);
+  $("homeSide").innerHTML = lado.map(([t, v]) => `<span class="hs-row"><small>${t}</small><b>${t === "Imposto de Renda" && v === 0 ? "Isento" : brl(v)}</b></span>`).join("");
   $("tile13").textContent = brl(calcDecimo({ ...base, meses: inp.meses }).liquido);
   $("tileFerias").textContent = brl(calcFerias({ ...base, direito: inp.direito, vender: inp.vender }).liquido);
   $("tileAno").textContent = brl(calcAno(inp).liquido);
@@ -1767,6 +1772,14 @@ $("printBtn").addEventListener("click", () => {
   window.addEventListener("afterprint", restaurar);
   window.print();
 });
+
+/* No computador o resultado fica fixo ao rolar, mas só quando cabe inteiro na tela */
+function ajustarFixo() {
+  const r = document.querySelector(".result");
+  if (r) r.classList.toggle("solto", r.offsetHeight > window.innerHeight - 32);
+}
+document.querySelectorAll(".drawers details").forEach((d) => d.addEventListener("toggle", ajustarFixo));
+window.addEventListener("resize", ajustarFixo);
 
 /* Barra do celular: some quando o resultado está na tela */
 $("mbarBtn").addEventListener("click", () => {
