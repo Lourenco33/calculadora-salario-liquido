@@ -185,6 +185,7 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .total .desc { color: var(--muted); font-size: .95rem; }
 .total .desc.error { color: var(--minus); font-weight: 600; }
 .result .btn { box-shadow: none; background: var(--field); }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { display: grid; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); flex: 1 1 140px; min-width: 0; }
 .chip small { font-size: .8rem; color: var(--muted); }
@@ -331,9 +332,14 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
       <p class="saved-note" id="savedNote">Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui.</p>
       <form id="form" autocomplete="off">
         <div class="field big">
-          <label for="bruto">Salário bruto mensal</label>
+          <label for="bruto" id="brutoLabel">Salário bruto mensal</label>
           <div class="money"><span>R$</span><input id="bruto" type="text" inputmode="decimal" value="6.500,00"></div>
-          <span class="hint">O valor registrado na carteira, antes dos descontos.</span>
+          <span class="hint" id="brutoHint">O valor registrado na carteira, antes dos descontos.</span>
+        </div>
+
+        <div class="inline" data-only="mensal">
+          <div class="txt"><strong>Calcular a partir do líquido</strong><span class="hint">Diga quanto quer receber e veja o bruto necessário.</span></div>
+          <label class="switch"><input id="inverso" type="checkbox" aria-label="Calcular a partir do líquido"><i></i></label>
         </div>
 
         <!-- Rescisão -->
@@ -361,6 +367,18 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
             <label for="aviso">Aviso prévio</label>
             <select id="aviso"></select>
             <span class="hint" id="avisoHint"></span>
+          </div>
+          <div class="inline" id="parcela13Field">
+            <div class="txt"><strong>Já recebi a 1ª parcela do 13º</strong><span class="hint">Paga até 30/11. Ela é descontada do 13º da rescisão.</span></div>
+            <label class="switch"><input id="parcela13" type="checkbox" checked aria-label="Já recebi a 1ª parcela do 13º"><i></i></label>
+          </div>
+          <div class="field" id="sdField">
+            <span class="label" id="sdLbl">Vezes que você já pediu seguro-desemprego</span>
+            <div class="seg" role="radiogroup" aria-labelledby="sdLbl">
+              <input type="radio" name="sd" id="sd1" value="1" checked><label for="sd1">Nunca</label>
+              <input type="radio" name="sd" id="sd2" value="2"><label for="sd2">1 vez</label>
+              <input type="radio" name="sd" id="sd3" value="3"><label for="sd3">2 ou mais</label>
+            </div>
           </div>
           <div class="inline">
             <div class="txt"><strong>Tenho férias vencidas</strong><span class="hint">Um período completo de 12 meses que você ainda não tirou.</span></div>
@@ -493,6 +511,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
               <div class="money"><span>R$</span><input id="pensao" type="text" inputmode="decimal" value="0,00"></div>
               <span class="hint">Só a pensão determinada pela Justiça, que também reduz o IR.</span>
             </div>
+            <div class="field" data-only="mensal">
+              <label for="faltas">Faltas sem justificativa no mês</label>
+              <input id="faltas" type="number" min="0" max="30" value="0" inputmode="numeric">
+              <span class="hint">Cada falta desconta o dia e, em geral, o descanso remunerado (DSR) daquela semana.</span>
+            </div>
             <div class="row2" data-only="mensal ano">
               <div class="field">
                 <label for="saude">Plano de saúde</label>
@@ -519,10 +542,16 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
           <span class="val" id="liquido">R$ 0,00</span>
           <span class="desc" id="heroDesc"></span>
         </div>
-        <button type="button" class="btn no-print" id="printBtn" title="Abre a janela de impressão. Escolha 'Salvar como PDF' para gerar o arquivo.">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-          Salvar PDF
-        </button>
+        <div class="actions no-print" id="actions">
+          <button type="button" class="btn" id="shareBtn" title="Envia o resultado e um link que abre com os mesmos valores">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+            <span id="shareTxt">Compartilhar</span>
+          </button>
+          <button type="button" class="btn" id="printBtn" title="Abre a janela de impressão. Escolha 'Salvar como PDF' para gerar o arquivo.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            PDF
+          </button>
+        </div>
       </div>
 
       <div class="chips" id="chips"></div>
@@ -676,18 +705,52 @@ function calcRemuneracao({ bruto, adicional = "nenhum", he50 = 0, he100 = 0, not
   const dsr = diasUteis > 0 ? R2((variaveis / diasUteis) * diasDsr) : 0;
   const total = R2(bruto + valorAdicional + variaveis + dsr + extras);
   return { bruto, valorAdicional, nomeAdicional, valorHora: R2(valorHora), he50, he100, noturnas,
-    valorHe50, valorHe100, valorNoturno, dsr, extras, total };
+    valorHe50, valorHe100, valorNoturno, dsr, extras, diasDsr, total };
 }
 
-function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0 }) {
-  const rendimentos = rem.total;
+// Faltas: desconta o dia e o DSR da semana (uma falta por semana, até o número de domingos e feriados).
+function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_MAX_PCT, vtCusto = 0, saude = 0, outros = 0, faltas = 0 }) {
+  const diaria = (rem.bruto + rem.valorAdicional) / 30;
+  const descFaltas = R2(diaria * faltas);
+  const descDsrFaltas = R2(diaria * Math.min(faltas, rem.diasDsr ?? 5));
+  const totalFaltas = Math.min(rem.total, R2(descFaltas + descDsrFaltas));
+  const rendimentos = R2(rem.total - totalFaltas);
   const inss = calcINSS(rendimentos);
   const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
   const tetoVT = rem.bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
   const descVT = vt ? R2(vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) : 0;
-  const totalDesc = R2(inss.total + ir.valor + descVT + pensao + saude + outros);
-  return { rem, rendimentos, inss, ir, descVT, pensao, saude, outros, totalDesc,
-    liquido: R2(rendimentos - totalDesc), fgts: R2(rendimentos * 0.08) };
+  const totalDesc = R2(totalFaltas + inss.total + ir.valor + descVT + pensao + saude + outros);
+  return { rem, prov: rem.total, rendimentos, faltas, descFaltas, descDsrFaltas, totalFaltas, inss, ir, descVT, pensao, saude, outros, totalDesc,
+    liquido: R2(rem.total - totalDesc), fgts: R2(rendimentos * 0.08) };
+}
+
+// Inverso: acha o salário bruto que resulta no líquido desejado (busca binária; o líquido cresce com o bruto).
+function brutoParaLiquido(alvo, liquidoDe) {
+  if (!(alvo > 0)) return 0;
+  let lo = 0, hi = Math.max(1000, alvo * 3);
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (liquidoDe(mid) < alvo) lo = mid; else hi = mid;
+  }
+  const redondo = Math.round(hi);
+  if (Math.abs(liquidoDe(redondo) - alvo) < 0.01) return redondo;
+  return Math.ceil(hi * 100) / 100;
+}
+
+// Seguro-desemprego 2026 (Lei 7.998/90 e Lei 13.134/2015)
+const SD_FAIXA1 = 2222.17, SD_FAIXA2 = 3703.99, SD_TETO = 2518.65;
+function calcSeguro(media, mesesTrabalhados, solicitacao) {
+  let parcelas = 0;
+  const m = mesesTrabalhados;
+  if (solicitacao === 1) parcelas = m >= 24 ? 5 : m >= 12 ? 4 : 0;
+  else if (solicitacao === 2) parcelas = m >= 24 ? 5 : m >= 12 ? 4 : m >= 9 ? 3 : 0;
+  else parcelas = m >= 24 ? 5 : m >= 12 ? 4 : m >= 6 ? 3 : 0;
+  const minimo = { 1: 12, 2: 9, 3: 6 }[solicitacao];
+  let valor = media <= SD_FAIXA1 ? media * 0.8
+    : media <= SD_FAIXA2 ? SD_FAIXA1 * 0.8 + (media - SD_FAIXA1) * 0.5
+    : SD_TETO;
+  valor = R2(Math.min(SD_TETO, Math.max(SALARIO_MINIMO, valor)));
+  return { parcelas, valor, total: R2(parcelas * valor), minimo };
 }
 
 function calcDecimo({ remuneracao, meses = 12, dependentes = 0, pensao = 0 }) {
@@ -744,7 +807,7 @@ function anosCompletos(adm, saida) {
 }
 
 // Rescisão: verbas, descontos e FGTS para demissão sem justa causa, pedido de demissão e acordo (art. 484-A).
-function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, vencidas = false, saldoFgts = 0, dependentes = 0, pensao = 0 }) {
+function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, vencidas = false, saldoFgts = 0, dependentes = 0, pensao = 0, parcela13 = true, solicitacaoSD = 1 }) {
   const adm = parseData(admissao), sai = parseData(saida);
   if (isNaN(adm) || isNaN(sai)) return { erro: "Preencha as datas de admissão e de saída." };
   if (sai < adm) return { erro: "O último dia de trabalho precisa ser depois da admissão." };
@@ -770,13 +833,15 @@ function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, 
   }
   const fimProjetado = sai + diasProjecao * DAY;
 
-  // 13º proporcional: meses do ano da saída (com projeção do aviso) em que trabalhou 15 dias ou mais
-  const ano = new Date(fimProjetado).getUTCFullYear();
+  // 13º proporcional: meses em que trabalhou 15 dias ou mais, do ano da saída até o fim da projeção do aviso
+  // (se a projeção passa para o ano seguinte, entram os avos dos dois anos)
   let avos13 = 0;
-  for (let m = 0; m <= new Date(fimProjetado).getUTCMonth(); m++) {
-    const ini = Math.max(Date.UTC(ano, m, 1), adm);
-    const fim = Math.min(Date.UTC(ano, m + 1, 0), fimProjetado);
-    if (fim >= ini && Math.round((fim - ini) / DAY) + 1 >= 15) avos13++;
+  for (let ano = new Date(sai).getUTCFullYear(); ano <= new Date(fimProjetado).getUTCFullYear(); ano++) {
+    for (let m = 0; m < 12; m++) {
+      const ini = Math.max(Date.UTC(ano, m, 1), adm);
+      const fim = Math.min(Date.UTC(ano, m + 1, 0), fimProjetado);
+      if (fim >= ini && Math.round((fim - ini) / DAY) + 1 >= 15) avos13++;
+    }
   }
   const decimo = R2(remuneracao / 12 * avos13);
 
@@ -799,10 +864,14 @@ function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, 
   const inss13 = calcINSS(decimo);
   const ir13 = calcIR(decimo, inss13.total, dependentes, 0, false);
 
+  // Saída em dezembro: a 1ª parcela do 13º (paga até 30/11) é descontada
+  const saidaEmDezembro = new Date(sai).getUTCMonth() === 11;
+  const adiantamento13 = saidaEmDezembro && parcela13 ? Math.min(decimo, R2(remuneracao / 2)) : 0;
+
   const totalProv = R2(saldoSalario + avisoIndenizado + decimo + feriasProp + tercoProp + feriasVenc + tercoVenc);
   const inssTotal = R2(inssSaldo.total + inss13.total);
   const irTotal = R2(irSaldo.valor + ir13.valor);
-  const totalDesc = R2(inssTotal + irTotal + avisoDescontado + pensao);
+  const totalDesc = R2(inssTotal + irTotal + avisoDescontado + adiantamento13 + pensao);
   const liquido = R2(totalProv - totalDesc);
 
   // FGTS
@@ -815,19 +884,23 @@ function calcRescisao({ remuneracao, salarioBase, tipo, admissao, saida, aviso, 
   const multa = R2(baseFgts * pctMulta);
   const saque = tipo === "sem-justa-causa" ? R2(baseFgts + multa) : tipo === "acordo" ? R2(baseFgts * 0.8 + multa) : 0;
 
+  // Seguro-desemprego: só na demissão sem justa causa; considera os meses deste emprego
+  const seguro = tipo === "sem-justa-causa" ? calcSeguro(remuneracao, tempo.meses + (tempo.dias >= 15 ? 1 : 0), solicitacaoSD) : null;
+
   return { tipo, aviso, anos, tempo, diasAvisoLei, diasAviso, diasSaldo, saldoSalario, avisoIndenizado, avisoDescontado,
     diasProjecao, avos13, decimo, avosFerias, feriasProp, tercoProp, feriasVenc, tercoVenc,
     inssSaldo, irSaldo, inss13, ir13, inssTotal, irTotal, pensao, totalProv, totalDesc, liquido,
+    saidaEmDezembro, adiantamento13, seguro,
     fgtsEstimado, saldoBase, depositoRescisao, baseFgts, pctMulta, multa, saque };
 }
 
 // Ano: 11 salários + 1 mês de férias com o terço + 13º.
 function calcAno(args) {
-  const m = calcMensal(args);
+  const m = calcMensal({ ...args, faltas: 0 });
   const remuneracao = args.rem.total;
   const d = calcDecimo({ remuneracao, meses: 12, dependentes: args.dependentes, pensao: args.pensao });
   const f = calcFerias({ remuneracao, direito: 30, vender: false, dependentes: args.dependentes, pensao: args.pensao });
-  const bruto = R2(11 * m.rendimentos + f.totalProv + d.integral);
+  const bruto = R2(11 * m.prov + f.totalProv + d.integral);
   const inss = R2(11 * m.inss.total + f.inss.total + d.inss.total);
   const ir = R2(11 * m.ir.valor + f.ir.valor + d.ir.valor);
   const liquido = R2(11 * m.liquido + f.liquido + d.liquido);
@@ -866,16 +939,25 @@ const radio = (name) => document.querySelector(`input[name="${name}"]:checked`).
 function ler() {
   const v = {};
   moneyIds.forEach((id) => (v[id] = parseBRL($(id).value)));
-  const rem = calcRemuneracao({
-    bruto: v.bruto, adicional: $("adicional").value,
+  const remDe = (bruto) => calcRemuneracao({
+    bruto, adicional: $("adicional").value,
     he50: parseNum($("he50").value), he100: parseNum($("he100").value), noturnas: parseNum($("noturnas").value),
     jornada: parseNum($("jornada").value) || 220,
     diasUteis: clampInt($("diasUteis").value, 1, 31, 25), diasDsr: clampInt($("diasDsr").value, 0, 15, 5),
     extras: v.extras,
   });
-  return {
-    ...v, rem,
+  const base = {
     dependentes: clampInt($("dep").value, 0, 20, 0),
+    pensao: v.pensao, vt: $("vt").checked, vtPct: readPct(), vtCusto: v.vtCusto, saude: v.saude, outros: v.outros,
+    faltas: clampInt($("faltas").value, 0, 30, 0),
+  };
+  const inverso = $("inverso").checked;
+  const alvo = v.bruto;
+  if (inverso) v.bruto = brutoParaLiquido(alvo, (b) => calcMensal({ ...base, rem: remDe(b) }).liquido);
+  const rem = remDe(v.bruto);
+  return {
+    ...v, ...base, rem, inverso, alvo,
+    parcela13: $("parcela13").checked, solicitacaoSD: Number(radio("sd")),
     meses: clampInt($("meses").value, 1, 12, 12),
     direito: Number(radio("direito")),
     vender: $("vender").checked,
@@ -887,11 +969,14 @@ function ler() {
 
 const COLORS = { liq: "var(--accent)", inss: "var(--minus)", ir: "var(--tax)", out: "var(--other)" };
 
-function renderSummary({ label, liquido, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml }) {
+let resumoAtual = { label: "", valor: 0, desc: "" };
+function renderSummary({ label, liquido, headline, desc, error, chips, gross, grossLabel, items, netLabel, fgtsHtml }) {
+  const destaque = headline ?? liquido;
   $("heroLbl").textContent = label;
-  $("liquido").textContent = brl(liquido);
+  $("liquido").textContent = brl(destaque);
   $("mbarLbl").textContent = label;
-  $("mbarVal").textContent = brl(liquido);
+  $("mbarVal").textContent = brl(destaque);
+  resumoAtual = { label, valor: destaque, desc: error || desc, chips };
   $("heroDesc").textContent = error || desc;
   $("heroDesc").classList.toggle("error", !!error);
   $("chips").innerHTML = chips.map(([s, b]) => `<div class="chip"><small>${s}</small><b>${b}</b></div>`).join("");
@@ -989,14 +1074,20 @@ function setRules(title, items) {
 function renderMensal(inp) {
   $("vtCostField").hidden = !inp.vt;
   const r = calcMensal(inp);
-  const temExtras = r.rendimentos !== inp.bruto;
+  const temExtras = r.prov !== inp.bruto;
+  const chips = temExtras ? [["Salário base", brl(inp.bruto)], ["Extras e adicionais", brl(R2(r.prov - inp.bruto))]] : [];
+  if (inp.inverso) chips.unshift(["Líquido desejado", brl(inp.alvo)]);
   renderSummary({
-    label: "Você recebe por mês",
+    label: inp.inverso ? "Salário bruto necessário" : "Você recebe por mês",
     liquido: r.liquido,
-    desc: `de ${brl(r.rendimentos)} bruto · ${pct(r.rendimentos ? r.totalDesc / r.rendimentos : 0)} em descontos`,
-    chips: temExtras ? [["Salário base", brl(inp.bruto)], ["Extras e adicionais", brl(R2(r.rendimentos - inp.bruto))]] : [],
-    gross: r.rendimentos, grossLabel: temExtras ? "Remuneração bruta" : "Salário bruto",
+    headline: inp.inverso ? inp.bruto : undefined,
+    desc: inp.inverso
+      ? `para receber ${brl(r.liquido)} líquido por mês`
+      : `de ${brl(r.prov)} bruto · ${pct(r.prov ? r.totalDesc / r.prov : 0)} em descontos`,
+    chips,
+    gross: r.prov, grossLabel: temExtras ? "Remuneração bruta" : "Salário bruto",
     items: [
+      { label: `Faltas (${r.faltas} dia${r.faltas > 1 ? "s" : ""}) e DSR`, value: r.totalFaltas, color: COLORS.out },
       { label: "INSS", value: r.inss.total, color: COLORS.inss, note: effNote(r.inss.total, r.rendimentos) },
       { label: "Imposto de Renda", value: r.ir.valor, color: COLORS.ir, note: effNote(r.ir.valor, r.rendimentos) },
       { label: "Vale-transporte", value: r.descVT, color: COLORS.out },
@@ -1011,6 +1102,8 @@ function renderMensal(inp) {
     title: "Ver holerite do mês",
     rows: [
       ...remRows(r.rem),
+      r.descFaltas ? row("801", "Faltas", `${r.faltas} dia${r.faltas > 1 ? "s" : ""}`, 0, r.descFaltas) : "",
+      r.descDsrFaltas ? row("802", "DSR perdido por faltas", "", 0, R2(r.totalFaltas - r.descFaltas)) : "",
       row("901", "INSS", inssRef(r.inss, r.rendimentos), 0, r.inss.total),
       row("902", "IRRF", irRef(r.ir), 0, r.ir.valor),
       r.descVT ? row("910", "Vale-transporte", pct(inp.bruto ? r.descVT / inp.bruto : 0, 2), 0, r.descVT) : "",
@@ -1018,7 +1111,7 @@ function renderMensal(inp) {
       r.saude ? row("930", "Plano de saúde", "", 0, r.saude) : "",
       r.outros ? row("990", "Outros descontos", "", 0, r.outros) : "",
     ],
-    prov: r.rendimentos, desc: r.totalDesc, netLabel: "Valor líquido", net: r.liquido,
+    prov: r.prov, desc: r.totalDesc, netLabel: "Valor líquido", net: r.liquido,
     bases: [r.rendimentos, r.ir.base, r.rendimentos, r.fgts],
   });
   renderNotes(r.inss, r.ir,
@@ -1147,7 +1240,10 @@ function tempoTxt(t) {
 
 function renderRescisao(inp) {
   const r = calcRescisao({ remuneracao: inp.rem.total, salarioBase: inp.bruto, tipo: inp.tipo, admissao: inp.admissao, saida: inp.saida,
-    aviso: inp.aviso, vencidas: inp.vencidas, saldoFgts: inp.saldoFgts, dependentes: inp.dependentes, pensao: inp.pensao });
+    aviso: inp.aviso, vencidas: inp.vencidas, saldoFgts: inp.saldoFgts, dependentes: inp.dependentes, pensao: inp.pensao,
+    parcela13: inp.parcela13, solicitacaoSD: inp.solicitacaoSD });
+  $("sdField").hidden = inp.tipo !== "sem-justa-causa";
+  $("parcela13Field").hidden = !r.saidaEmDezembro;
   const avisoTxt = { indenizado: "indenizado", trabalhado: "trabalhado", dispensado: "dispensado", "nao-cumprido": "não cumprido" }[inp.aviso];
   if (r.erro) {
     renderSummary({ label: "Você recebe na rescisão", liquido: 0, error: r.erro, chips: [], gross: 0, grossLabel: "Total de verbas", items: [], netLabel: "Líquido", fgtsHtml: "" });
@@ -1161,6 +1257,7 @@ function renderRescisao(inp) {
 
   const chips = [["Tempo de casa", tempoTxt(r.tempo)], [`Aviso prévio ${avisoTxt}`, `${r.diasAviso} dias`]];
   if (r.saque) chips.push(["FGTS para sacar", brl(r.saque)]);
+  if (r.seguro) chips.push(["Seguro-desemprego", r.seguro.parcelas ? `${r.seguro.parcelas} × ${brl(r.seguro.valor)}` : "sem direito"]);
   renderSummary({
     label: "Você recebe na rescisão",
     liquido: r.liquido,
@@ -1171,6 +1268,7 @@ function renderRescisao(inp) {
       { label: "INSS", value: r.inssTotal, color: COLORS.inss },
       { label: "Imposto de Renda", value: r.irTotal, color: COLORS.ir },
       { label: "Aviso prévio não cumprido", value: r.avisoDescontado, color: COLORS.out },
+      { label: "1ª parcela do 13º já paga", value: r.adiantamento13, color: COLORS.out },
       { label: "Pensão alimentícia", value: r.pensao, color: COLORS.out },
     ],
     netLabel: "Líquido da rescisão",
@@ -1183,7 +1281,7 @@ function renderRescisao(inp) {
     rows: [
       row("301", "Saldo de salário", `${r.diasSaldo} dias`, r.saldoSalario, 0),
       r.avisoIndenizado ? row("302", "Aviso prévio indenizado", `${r.diasAviso} dias`, r.avisoIndenizado, 0, "isento") : "",
-      r.decimo ? row("303", "13º salário proporcional", `${r.avos13}/12 avos`, r.decimo, 0) : "",
+      r.decimo ? row("303", "13º salário proporcional", r.avos13 > 12 ? `${r.avos13} avos` : `${r.avos13}/12 avos`, r.decimo, 0) : "",
       r.feriasVenc ? row("304", "Férias vencidas", "30 dias", r.feriasVenc, 0, "isento") : "",
       r.tercoVenc ? row("305", "1/3 sobre férias vencidas", "1/3", r.tercoVenc, 0, "isento") : "",
       r.feriasProp ? row("306", "Férias proporcionais", `${r.avosFerias}/12 avos`, r.feriasProp, 0, "isento") : "",
@@ -1193,6 +1291,7 @@ function renderRescisao(inp) {
       row("903", "IRRF sobre saldo de salário", irRef(r.irSaldo), 0, r.irSaldo.valor),
       r.decimo ? row("904", "IRRF sobre 13º", irRef(r.ir13), 0, r.ir13.valor) : "",
       r.avisoDescontado ? row("905", "Aviso prévio não cumprido", "30 dias", 0, r.avisoDescontado) : "",
+      r.adiantamento13 ? row("906", "Adiantamento da 1ª parcela do 13º", "50%", 0, r.adiantamento13, "já pago") : "",
       r.pensao ? row("920", "Pensão alimentícia", "", 0, r.pensao) : "",
     ],
     prov: r.totalProv, desc: r.totalDesc, netLabel: "Líquido da rescisão", net: r.liquido,
@@ -1205,10 +1304,16 @@ function renderRescisao(inp) {
     "As verbas da rescisão devem ser pagas em até 10 dias depois do fim do contrato. Atrasou, a empresa paga multa de um salário.",
     "O aviso prévio indenizado conta como tempo de serviço: os dias dele entram no cálculo do 13º e das férias proporcionais.",
   ];
-  if (inp.tipo === "sem-justa-causa") regras.push("Na demissão sem justa causa você saca todo o FGTS com a multa de 40% e pode ter direito ao seguro-desemprego.");
+  if (inp.tipo === "sem-justa-causa") {
+    regras.push("Na demissão sem justa causa você saca todo o FGTS com a multa de 40%.");
+    const s = r.seguro;
+    regras.push(s.parcelas
+      ? `Seguro-desemprego: ${s.parcelas} parcelas de ${brl(s.valor)}, ${brl(s.total)} no total. O valor sai da média dos 3 últimos salários (aqui usamos a remuneração informada), com piso de ${brl(SALARIO_MINIMO)} e teto de ${brl(SD_TETO)}. Peça entre 7 e 120 dias após a demissão, pelo app Carteira de Trabalho Digital.`
+      : `Seguro-desemprego: para este pedido é preciso ter trabalhado pelo menos ${s.minimo} meses. A conta considera só este emprego. Se você teve outro registro em carteira nos últimos 36 meses, pode ter direito.`);
+  }
   if (inp.tipo === "acordo") regras.push("No acordo, o aviso indenizado e a multa do FGTS caem pela metade (20%), você saca 80% do FGTS e não recebe seguro-desemprego.");
   if (inp.tipo === "pedido") regras.push("No pedido de demissão não há multa do FGTS, saque nem seguro-desemprego. 13º e férias proporcionais continuam garantidos.");
-  regras.push("Se a saída for em dezembro e a 1ª parcela do 13º já tiver sido paga, ela é descontada do 13º proporcional.");
+  if (r.saidaEmDezembro) regras.push("Saída em dezembro: a 1ª parcela do 13º, paga até 30/11, é descontada do 13º da rescisão.");
   setRules("Regras da rescisão", regras);
 }
 
@@ -1271,11 +1376,16 @@ function render() {
     ? "Informe o que você fez neste mês. A calculadora converte as horas em reais e soma o reflexo no descanso semanal (DSR)."
     : "Informe a média mensal. Para 13º, férias e rescisão, os adicionais que você recebe com frequência entram pela média.";
   renderHoraNote(inp.rem);
+  const naAbaSalario = mode === "mensal";
+  $("brutoLabel").textContent = inp.inverso ? (naAbaSalario ? "Quanto você quer receber líquido" : "Líquido desejado (aba Salário)") : "Salário bruto mensal";
+  $("brutoHint").textContent = inp.inverso
+    ? (naAbaSalario ? "A calculadora acha o salário bruto que resulta nesse valor." : `Usando o salário bruto de ${brl(inp.bruto)}, calculado a partir desse líquido.`)
+    : "O valor registrado na carteira, antes dos descontos.";
 
   const extrasFilled = ["he50", "he100", "noturnas"].filter((id) => parseNum($(id).value) > 0).length + (inp.extras > 0) + ($("adicional").value !== "nenhum");
   $("extrasCount").textContent = extrasFilled ? `${extrasFilled} preenchido${extrasFilled > 1 ? "s" : ""}` : "opcional";
   const descIds = ["pensao", ...(mode === "mensal" || mode === "ano" ? ["saude", "outros"] : [])];
-  const descFilled = descIds.filter((id) => parseBRL($(id).value) > 0).length;
+  const descFilled = descIds.filter((id) => parseBRL($(id).value) > 0).length + (mode === "mensal" && inp.faltas > 0);
   $("descCount").textContent = descFilled ? `${descFilled} preenchido${descFilled > 1 ? "s" : ""}` : "opcional";
 
   ({ "decimo-terceiro": renderDecimo, ferias: renderFerias, rescisao: renderRescisao, ano: renderAno }[mode] || renderMensal)(inp);
@@ -1316,7 +1426,34 @@ applyTheme();
 /* PDF: abre os detalhes e chama a impressão do navegador */
 let emFrame = true;
 try { emFrame = window.self !== window.top; } catch (_) {}
-$("printBtn").hidden = emFrame;
+$("actions").hidden = emFrame;
+
+/* Compartilhar: texto com o resultado e um link que abre com os mesmos valores */
+function codificar(obj) {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decodificar(txt) {
+  const b64 = txt.replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+}
+$("shareBtn").addEventListener("click", async () => {
+  // Só leva para o link o que for diferente dos valores de exemplo, para o link ficar curto
+  const atual = coletar();
+  const dados = { modo: atual.modo, campos: {}, radios: {} };
+  Object.entries(atual.campos).forEach(([k, v]) => { if (PADRAO.campos[k] !== v) dados.campos[k] = v; });
+  Object.entries(atual.radios).forEach(([k, v]) => { if (PADRAO.radios[k] !== v) dados.radios[k] = v; });
+  const url = `${location.origin}${location.pathname}?v=${codificar(dados)}#${mode}`;
+  const linhas = [`${MODE_NAMES[mode]}: ${resumoAtual.label.toLowerCase()} ${brl(resumoAtual.valor)}`, resumoAtual.desc];
+  (resumoAtual.chips || []).forEach(([a, b]) => linhas.push(`${a}: ${b}`));
+  const texto = linhas.filter(Boolean).join("\n");
+  const avisar = (msg) => { $("shareTxt").textContent = msg; setTimeout(() => ($("shareTxt").textContent = "Compartilhar"), 2500); };
+  if (navigator.share) {
+    try { await navigator.share({ title: "Salário Líquido CLT 2026", text: texto, url }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(`${texto}\n${url}`); avisar("Link copiado"); }
+  catch (_) { avisar("Não deu para copiar"); }
+});
 $("printBtn").addEventListener("click", () => {
   const drawers = [...document.querySelectorAll(".drawers details")];
   const antes = drawers.map((d) => d.open);
@@ -1347,8 +1484,7 @@ $("saida").value = hojeISO();
 const CHAVE = "calculadora-clt-dados-v1";
 let restaurando = false;
 function campos() { return [...$("form").querySelectorAll("input, select")]; }
-function salvar() {
-  if (restaurando) return;
+function coletar() {
   const dados = { modo: mode, campos: {}, radios: {}, abertos: {} };
   campos().forEach((el) => {
     if (el.type === "radio") { if (el.checked) dados.radios[el.name] = el.value; }
@@ -1356,11 +1492,15 @@ function salvar() {
     else if (el.id) dados.campos[el.id] = el.value;
   });
   document.querySelectorAll("details[id]").forEach((d) => (dados.abertos[d.id] = d.open));
-  try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (_) {}
+  return dados;
 }
-function restaurar() {
-  let dados = null;
-  try { dados = JSON.parse(localStorage.getItem(CHAVE) || "null"); } catch (_) {}
+function salvar() {
+  if (restaurando) return;
+  try { localStorage.setItem(CHAVE, JSON.stringify(coletar())); } catch (_) {}
+}
+function restaurar(deLink) {
+  let dados = deLink ? { ...deLink, campos: { ...PADRAO.campos, ...deLink.campos }, radios: { ...PADRAO.radios, ...deLink.radios } } : null;
+  if (!dados) { try { dados = JSON.parse(localStorage.getItem(CHAVE) || "null"); } catch (_) {} }
   if (!dados) return null;
   restaurando = true;
   Object.entries(dados.radios || {}).forEach(([nome, valor]) => {
@@ -1379,7 +1519,18 @@ function restaurar() {
   restaurando = false;
   return dados;
 }
-const salvos = restaurar();
+const PADRAO = coletar();
+
+// Link compartilhado (?v=...) tem prioridade sobre os dados salvos
+let doLink = null;
+try {
+  const v = new URLSearchParams(location.search).get("v");
+  if (v) {
+    doLink = decodificar(v);
+    history.replaceState(null, "", location.pathname + (doLink.modo ? "#" + doLink.modo : location.hash));
+  }
+} catch (_) { doLink = null; }
+const salvos = restaurar(doLink);
 document.querySelectorAll("details[id]").forEach((d) => d.addEventListener("toggle", salvar));
 
 $("clearBtn").addEventListener("click", () => {
@@ -1396,6 +1547,14 @@ $("clearBtn").addEventListener("click", () => {
   setTimeout(() => { nota.textContent = "Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui."; nota.classList.remove("flash"); }, 3500);
 });
 
+// Ao ligar/desligar o cálculo inverso, troca o valor do campo para não dar um salto no resultado
+$("inverso").addEventListener("change", () => {
+  const ligado = $("inverso").checked;
+  $("inverso").checked = !ligado;
+  const antes = ler();
+  $("inverso").checked = ligado;
+  $("bruto").value = num(ligado ? calcMensal(antes).liquido : antes.bruto);
+});
 $("form").addEventListener("input", render);
 $("form").addEventListener("change", render);
 $("form").addEventListener("submit", (e) => e.preventDefault());
