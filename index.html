@@ -187,10 +187,14 @@ details.more .body { display: grid; gap: 14px; padding-top: 16px; }
 .total .desc.error { color: var(--minus); font-weight: 600; }
 .result .btn { box-shadow: none; background: var(--field); }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { display: grid; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); flex: 1 1 140px; min-width: 0; }
+.chips { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 8px; }
+.chip { display: grid; gap: 2px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); min-width: 0; }
 .chip small { font-size: .8rem; color: var(--muted); }
-.chip b { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip b { font-family: var(--font-body); font-weight: 700; font-size: 1rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chips .chip:last-child:nth-child(odd) { grid-column: span 2; }
+}
 
 .split { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 22px; align-items: center; }
 @media (max-width: 440px) { .split { grid-template-columns: minmax(0, 1fr); justify-items: center; } .split .list { width: 100%; } }
@@ -228,6 +232,17 @@ td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-
 td.code { font-family: var(--font-mono); color: var(--muted); width: 48px; }
 td.ref { font-family: var(--font-mono); color: var(--muted); font-size: .82rem; white-space: nowrap; }
 td.minus { color: var(--minus); }
+.ref-m { display: none; }
+@media (max-width: 640px) {
+  .slip { min-width: 0; font-size: .86rem; table-layout: fixed; }
+  .slip .code, .slip .ref { display: none; }
+  .slip th, .slip td { padding: 9px 4px; overflow-wrap: anywhere; }
+  .slip th:nth-child(2), .slip td:nth-child(2) { width: 46%; padding-left: 0; }
+  .slip td.num { font-size: .8rem; white-space: nowrap; }
+  .slip th.num { font-size: .62rem; letter-spacing: .03em; }
+  .slip td .tag { display: inline-block; margin: 3px 0 0 4px; }
+  .ref-m { display: block; font-family: var(--font-mono); font-size: .72rem; color: var(--muted); margin-top: 2px; font-weight: 400; }
+}
 td .tag { font-family: var(--font-mono); font-size: .68rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
 tfoot td { font-weight: 600; border-bottom: 0; }
 tfoot tr.net td { background: var(--accent-soft); }
@@ -253,6 +268,14 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 }
 .hero-card:hover { transform: translateY(-2px); filter: brightness(1.04); }
 .hero-card:focus-visible, .tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.hero-card { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 28px; }
+.hc-main { display: grid; gap: 4px; min-width: 0; }
+.hc-side { display: grid; gap: 2px; min-width: 240px; padding: 8px 18px; border-radius: 16px; background: rgba(255, 255, 255, .1); }
+.hs-row { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, .14); }
+.hs-row:last-child { border-bottom: 0; }
+.hs-row small { font-size: .88rem; opacity: .85; }
+.hs-row b { font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .hero-card { grid-template-columns: minmax(0, 1fr); } .hc-side { display: none; } }
 .hc-lbl { font-weight: 600; opacity: .85; }
 .hc-val { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 9vw, 3.8rem); line-height: 1.02; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .hc-info { opacity: .85; font-size: .95rem; }
@@ -317,8 +340,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   #themeBtn { padding: 10px; }
   .result { gap: 18px; }
   .total-row { flex-wrap: wrap; }
-  .chip { flex: 1 1 130px; padding: 9px 12px; }
-  .chip b { font-family: var(--font-body); font-weight: 700; font-size: .98rem; }
+  .chip { padding: 9px 12px; }
+  .chip b { font-size: .98rem; }
   .seg label { display: grid; place-items: center; padding: 8px 2px; font-size: .88rem; line-height: 1.2; }
   .split { gap: 14px; }
   .donut { width: 120px; height: 120px; }
@@ -362,10 +385,13 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
   </header>
 
   <button type="button" class="hero-card" data-go="mensal" data-inverso="0">
-    <span class="hc-lbl">Seu salário líquido por mês</span>
-    <span class="hc-val" id="homeLiquido">R$ 0,00</span>
-    <span class="hc-info" id="homeInfo"></span>
-    <span class="hc-cta" id="homeCta">Ver detalhes</span>
+    <span class="hc-main">
+      <span class="hc-lbl">Seu salário líquido por mês</span>
+      <span class="hc-val" id="homeLiquido">R$ 0,00</span>
+      <span class="hc-info" id="homeInfo"></span>
+      <span class="hc-cta" id="homeCta">Ver detalhes</span>
+    </span>
+    <span class="hc-side" id="homeSide"></span>
   </button>
 
   <h2 class="section-title">O que você quer calcular?</h2>
@@ -673,11 +699,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
           <div class="body">
             <div class="table-scroll">
               <table class="slip">
-                <thead><tr><th>Cód.</th><th>Descrição</th><th>Ref.</th><th class="num">Proventos</th><th class="num">Descontos</th></tr></thead>
+                <thead><tr><th class="code">Cód.</th><th>Descrição</th><th class="ref">Ref.</th><th class="num">Proventos</th><th class="num">Descontos</th></tr></thead>
                 <tbody id="rows"></tbody>
                 <tfoot>
-                  <tr><td></td><td colspan="2">Totais</td><td class="num" id="totProv"></td><td class="num minus" id="totDesc"></td></tr>
-                  <tr class="net"><td></td><td colspan="3" id="netLbl">Valor líquido</td><td class="num" id="totLiq"></td></tr>
+                  <tr><td class="code"></td><td>Totais</td><td class="ref"></td><td class="num" id="totProv"></td><td class="num minus" id="totDesc"></td></tr>
+                  <tr class="net"><td class="code"></td><td id="netLbl">Valor líquido</td><td class="ref"></td><td colspan="2" class="num" id="totLiq"></td></tr>
                 </tfoot>
               </table>
             </div>
@@ -815,14 +841,19 @@ function calcMensal({ rem, dependentes = 0, pensao = 0, vt = false, vtPct = VT_M
   const beneficioVR = vr ? R2(vrValor) : 0;
   const descVR = vr ? R2(vrValor * Math.max(0, Math.min(VR_MAX_PCT, vrPct)) / 100) : 0;
   const diaria = (rem.bruto + rem.valorAdicional) / 30;
+  faltas = Math.max(0, Math.min(30, faltas));
+  const diasDsrPerdidos = Math.min(faltas, rem.diasDsr ?? 5, 30 - faltas);
+  const diasPerdidos = faltas + diasDsrPerdidos;
   const descFaltas = R2(diaria * faltas);
-  const descDsrFaltas = R2(diaria * Math.min(faltas, rem.diasDsr ?? 5));
+  const descDsrFaltas = R2(diaria * diasDsrPerdidos);
   const totalFaltas = Math.min(rem.total, R2(descFaltas + descDsrFaltas));
   const rendimentos = R2(rem.total - totalFaltas);
   const inss = calcINSS(rendimentos);
   const ir = calcIR(rendimentos, inss.total, dependentes, pensao, true);
   const tetoVT = rem.bruto * Math.max(0, Math.min(VT_MAX_PCT, vtPct)) / 100;
-  const descVT = vt ? R2(vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) : 0;
+  // VT só é descontado pelos dias trabalhados: com faltas, o desconto cai na mesma proporção
+  const fatorDias = (30 - diasPerdidos) / 30;
+  const descVT = vt ? R2((vtCusto > 0 ? Math.min(tetoVT, vtCusto) : tetoVT) * fatorDias) : 0;
   const totalDesc = R2(totalFaltas + inss.total + ir.valor + descVT + descVR + pensao + saude + outros);
   return { rem, prov: rem.total, rendimentos, faltas, descFaltas, descDsrFaltas, totalFaltas, inss, ir, descVT, descVR, beneficioVR, pensao, saude, outros, totalDesc,
     liquido: R2(rem.total - totalDesc), fgts: R2(rendimentos * 0.08) };
@@ -1090,6 +1121,7 @@ function renderSummary({ label, liquido, headline, desc, error, chips, gross, gr
   $("heroDesc").classList.toggle("error", !!error);
   $("chips").innerHTML = chips.map(([s, b]) => `<div class="chip"><small>${s}</small><b>${b}</b></div>`).join("");
   $("chips").hidden = !chips.length;
+  $("chips").style.setProperty("--n", chips.length === 4 ? 2 : Math.max(1, Math.min(3, chips.length)));
 
   const shown = items.filter((it) => it.value > 0);
   $("list").innerHTML =
@@ -1112,8 +1144,9 @@ function renderSummary({ label, liquido, headline, desc, error, chips, gross, gr
   $("fgtsBox").hidden = !fgtsHtml;
 }
 
+// No celular as colunas Cód. e Ref. somem e a referência aparece embaixo da descrição
 const row = (c, d, ref, p, ds, tag) =>
-  `<tr><td class="code">${c}</td><td>${d}${tag ? `<span class="tag">${tag}</span>` : ""}</td><td class="ref">${ref || ""}</td><td class="num">${p ? num(p) : ""}</td><td class="num minus">${ds ? num(ds) : ""}</td></tr>`;
+  `<tr><td class="code">${c}</td><td>${d}${tag ? `<span class="tag">${tag}</span>` : ""}${ref ? `<small class="ref-m">${ref}</small>` : ""}</td><td class="ref">${ref || ""}</td><td class="num">${p ? num(p) : ""}</td><td class="num minus">${ds ? num(ds) : ""}</td></tr>`;
 const irRef = (ir) => (ir.valor ? pct(IR_FAIXAS[ir.faixa].aliq) : "isento");
 const inssRef = (inss, base) => pct(base ? inss.total / base : 0, 2) + " efet.";
 const effNote = (v, base) => (base ? pct(v / base) : "");
@@ -1133,7 +1166,7 @@ function remRows(rem) {
 
 function renderSlip({ title, head, rows, prov, desc, netLabel, net, bases }) {
   $("slipTitle").textContent = title;
-  document.querySelector(".slip thead tr").innerHTML = head || "<th>Cód.</th><th>Descrição</th><th>Ref.</th><th class=\"num\">Proventos</th><th class=\"num\">Descontos</th>";
+  document.querySelector(".slip thead tr").innerHTML = head || "<th class=\"code\">Cód.</th><th>Descrição</th><th class=\"ref\">Ref.</th><th class=\"num\">Proventos</th><th class=\"num\">Descontos</th>";
   $("rows").innerHTML = rows.join("");
   $("totProv").textContent = num(prov);
   $("totDesc").textContent = num(desc);
@@ -1451,7 +1484,7 @@ function renderAno(inp) {
     netLabel: "Líquido no ano",
     fgtsHtml: `Para comparar com uma proposta PJ: somando o líquido, o FGTS${r.beneficios ? " e o VR/VA" : ""}, a CLT te dá <b>${brl(r.comFgts)}</b> por mês. Um contrato PJ precisa deixar pelo menos isso no seu bolso, já tirando impostos e contador, para empatar.${r.beneficios ? "" : " Se você recebe vale-refeição ou alimentação, ligue essa opção para a conta ficar completa."}`,
   });
-  const head = "<th></th><th>Parte do ano</th><th>Ref.</th><th class=\"num\">Bruto</th><th class=\"num\">Descontos</th>";
+  const head = "<th class=\"code\"></th><th>Parte do ano</th><th class=\"ref\">Ref.</th><th class=\"num\">Bruto</th><th class=\"num\">Descontos</th>";
   const linha = (c, d, ref, b, ds) => row(c, d, ref, b, ds);
   renderSlip({
     title: "Ver o ano parte por parte",
@@ -1460,8 +1493,8 @@ function renderAno(inp) {
       linha("", "Salários", "11 meses", R2(11 * r.m.rendimentos), R2(11 * r.m.totalDesc)),
       linha("", "Férias + 1/3", "30 dias", r.f.totalProv, r.f.totalDesc),
       linha("", "13º salário", "12/12", r.d.integral, R2(r.d.integral - r.d.liquido)),
-      `<tr><td></td><td>FGTS depositado</td><td class="ref">8%</td><td class="num">${num(r.fgts)}</td><td class="num"></td></tr>`,
-      r.beneficios ? `<tr><td></td><td>VR/VA no cartão</td><td class="ref">11 meses</td><td class="num">${num(r.beneficios)}</td><td class="num"></td></tr>` : "",
+      row("", "FGTS depositado", "8%", r.fgts, 0),
+      r.beneficios ? row("", "VR/VA no cartão", "11 meses", r.beneficios, 0) : "",
     ],
     prov: r.bruto, desc: R2(r.bruto - r.liquido), netLabel: "Líquido no ano (sem o FGTS)", net: r.liquido,
   });
@@ -1527,6 +1560,9 @@ function renderHome(inp) {
   $("homeLiquido").textContent = brl(m.liquido);
   $("homeInfo").textContent = `Salário bruto de ${brl(inp.bruto)} · ${inp.dependentes} dependente${inp.dependentes === 1 ? "" : "s"}${exemplo ? " · valores de exemplo" : ""}`;
   $("homeCta").textContent = exemplo ? "Colocar o meu salário" : "Ver detalhes";
+  const lado = [["Salário bruto", m.prov], ["Descontos", m.totalDesc], ["FGTS depositado", m.fgts]];
+  if (m.beneficioVR) lado.push(["VR/VA no cartão", m.beneficioVR]);
+  $("homeSide").innerHTML = lado.map(([t, v]) => `<span class="hs-row"><small>${t}</small><b>${brl(v)}</b></span>`).join("");
   $("tile13").textContent = brl(calcDecimo({ ...base, meses: inp.meses }).liquido);
   $("tileFerias").textContent = brl(calcFerias({ ...base, direito: inp.direito, vender: inp.vender }).liquido);
   $("tileAno").textContent = brl(calcAno(inp).liquido);
@@ -1584,7 +1620,7 @@ function applyTheme() {
   const t = THEMES.find((x) => x.id === theme) || THEMES[0];
   if (t.id === "auto") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", t.id);
-  $("themeBtn").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t.icon}</svg><span class="t">${t.label.replace("Tema ", "")}</span>`;
+  $("themeBtn").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${t.icon}</svg><span class="t">${t.label.replace("Tema ", "").replace(/^./, (c) => c.toUpperCase())}</span>`;
   $("themeBtn").setAttribute("aria-label", `${t.label}. Clique para trocar.`);
 }
 $("themeBtn").addEventListener("click", () => {
