@@ -107,15 +107,16 @@ header p { margin: 0; color: var(--muted); max-width: 58ch; }
 @media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 .card { background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 24px; min-width: 0; }
 .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0; }
-.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; }
 .linkbtn { border: 0; background: none; padding: 6px 2px; color: var(--muted); font: 600 .86rem var(--font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .linkbtn:hover { color: var(--minus); }
-.saved-note { margin: 0 0 18px; font-size: .82rem; color: var(--muted); }
+.saved-note { margin: 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: .8rem; color: var(--muted); text-align: center; }
 .saved-note.flash { color: var(--accent); font-weight: 600; }
 
 /* Formulário */
-form { display: grid; gap: 20px; }
-.field { display: grid; gap: 6px; min-width: 0; }
+form { display: grid; gap: 26px; }
+.field { display: grid; gap: 8px; min-width: 0; }
+.inline .txt { gap: 3px; }
 .field > label, .field > .label { font-weight: 600; font-size: .93rem; }
 .hint { font-size: .82rem; color: var(--muted); }
 .money { position: relative; }
@@ -159,11 +160,11 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 .seg input:checked + label { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
 .seg input:focus-visible + label { outline: 2px solid var(--accent); }
 
-.sub { display: grid; gap: 14px; padding: 16px; border-radius: 14px; background: var(--field); }
+.sub { display: grid; gap: 16px; padding: 18px; border-radius: 14px; background: var(--field); }
 .sub input[type="text"], .sub input[type="number"], .sub select { background: var(--card); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
-.stack { display: grid; gap: 14px; }
+@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; gap: 20px; } }
+.stack { display: grid; gap: 20px; }
 .calc-note { font-size: .85rem; color: var(--muted); background: var(--field); border-radius: 10px; padding: 10px 12px; }
 .calc-note b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; }
 
@@ -276,10 +277,10 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 
 /* Calculadora */
 .calc { display: grid; gap: 22px; }
-.topbar { display: flex; align-items: center; gap: 14px; }
-.topbar .tb-title { display: grid; gap: 2px; min-width: 0; }
-.topbar h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
-.btn.back { padding: 9px 14px 9px 10px; }
+.topbar { display: grid; justify-items: start; gap: 18px; padding-top: 4px; }
+.topbar .tb-title { display: grid; gap: 6px; min-width: 0; }
+.topbar h1 { font-size: clamp(1.9rem, 5vw, 2.4rem); }
+.btn.back { padding: 8px 14px 8px 9px; font-size: .9rem; }
 
 /* Barra fixa no celular com o valor líquido */
 .mbar { display: none; }
@@ -302,9 +303,15 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
 @media (max-width: 640px) {
   body { padding-block: 20px 96px; }
   .wrap { gap: 16px; }
-  .card { padding: 18px; border-radius: 18px; }
-  .card-title { margin-bottom: 14px; }
-  form { gap: 18px; }
+  .card { padding: 22px 20px; border-radius: 20px; }
+  form { gap: 28px; }
+  .stack { gap: 22px; }
+  .sub { padding: 18px 16px; gap: 18px; }
+  details.more .body { gap: 20px; padding-top: 20px; }
+  details.more { padding-top: 18px; }
+  .hint { line-height: 1.45; }
+  .inline .txt { gap: 4px; }
+  .inline { gap: 16px; }
   header p { font-size: .95rem; }
   #themeBtn .t { display: none; }
   #themeBtn { padding: 10px; }
@@ -405,7 +412,6 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
         <h2 class="card-title">Seus dados</h2>
         <button type="button" class="linkbtn" id="clearBtn">Limpar dados</button>
       </div>
-      <p class="saved-note" id="savedNote">Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui.</p>
       <form id="form" autocomplete="off">
         <div class="field big">
           <label for="bruto" id="brutoLabel">Salário bruto mensal</label>
@@ -620,6 +626,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 75ch; }
             </div>
           </div>
         </details>
+        <p class="saved-note" id="savedNote">Seus dados ficam salvos neste aparelho. Quando você voltar, eles continuam aqui.</p>
       </form>
     </section>
 
